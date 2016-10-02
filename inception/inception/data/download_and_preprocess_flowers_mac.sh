@@ -30,8 +30,11 @@
 # serialized Example protocol buffers. See build_image_data.py for
 # details of how the Example protocol buffer contains image data.
 #
+# Run this from the inception directory.
+# E.G:  ~/Desktop/School/Fall2016/Research/DistributedSGD/models/inception
+#
 # usage:
-#  ./download_and_preprocess_flowers.sh [data-dir]
+#  sh inception/data/download_and_preprocess_flowers_mac.sh ./data/
 set -e
 
 if [ -z "$1" ]; then
@@ -44,7 +47,7 @@ DATA_DIR="${1%/}"
 SCRATCH_DIR="${DATA_DIR}/raw-data/"
 mkdir -p "${DATA_DIR}"
 mkdir -p "${SCRATCH_DIR}"
-WORK_DIR="$0.runfiles/inception/inception"
+WORK_DIR="./inception/data"
 
 # Download the flowers data.
 DATA_URL="http://download.tensorflow.org/example_images/flower_photos.tgz"
@@ -65,8 +68,19 @@ VALIDATION_DIRECTORY="${SCRATCH_DIR}validation/"
 # Expands the data into the flower_photos/ directory and rename it as the
 # train directory.
 tar xf flower_photos.tgz
+cd ..
 rm -rf "${TRAIN_DIRECTORY}" "${VALIDATION_DIRECTORY}"
-mv flower_photos "${TRAIN_DIRECTORY}"
+mkdir -p "${TRAIN_DIRECTORY}"
+mkdir -p "${VALIDATION_DIRECTORY}"
+mv "${DATA_DIR}/flower_photos" "${TRAIN_DIRECTORY}"
+
+# Train directory contains flower_photos/daisy, flower_photos/sunflowers...
+#  Move everything 1 dir up.
+cd "${TRAIN_DIRECTORY}/flower_photos"
+cp -rf . ..
+cd ..
+rm -rf flower_photos
+cd "${CURRENT_DIR}"
 
 # Generate a list of 5 labels: daisy, dandelion, roses, sunflowers, tulips
 LABELS_FILE="${SCRATCH_DIR}/labels.txt"
@@ -75,21 +89,30 @@ ls -1 "${TRAIN_DIRECTORY}" | grep -v 'LICENSE' | sed 's/\///' | sort > "${LABELS
 # Generate the validation data set.
 while read LABEL; do
   VALIDATION_DIR_FOR_LABEL="${VALIDATION_DIRECTORY}${LABEL}"
-  TRAIN_DIR_FOR_LABEL="${TRAIN_DIRECTORY}${LABEL}"
+  TRAIN_DIR_FOR_LABEL="${TRAIN_DIRECTORY}/${LABEL}"
+
+  echo "${VALIDATION_DIR_FOR_LABEL}"
+  echo "${TRAIN_DIR_FOR_LABEL}"
 
   # Move the first randomly selected 100 images to the validation set.
   mkdir -p "${VALIDATION_DIR_FOR_LABEL}"
   VALIDATION_IMAGES=$(ls -1 "${TRAIN_DIR_FOR_LABEL}" | gshuf | head -100)
   for IMAGE in ${VALIDATION_IMAGES}; do
-    mv -f "${TRAIN_DIRECTORY}${LABEL}/${IMAGE}" "${VALIDATION_DIR_FOR_LABEL}"
+    mv -f "${TRAIN_DIR_FOR_LABEL}/${IMAGE}" "${VALIDATION_DIR_FOR_LABEL}"
   done
 done < "${LABELS_FILE}"
 
+echo ""
+echo ${TRAIN_DIRECTORY}
+echo ${VALIDATION_DIRECTORY}
+echo ${OUTPUT_DIRECTORY}
+
 # Build the TFRecords version of the image data.
 cd "${CURRENT_DIR}"
-BUILD_SCRIPT="${WORK_DIR}/build_image_data"
+BUILD_SCRIPT="${WORK_DIR}/build_image_data.py"
 OUTPUT_DIRECTORY="${DATA_DIR}"
-"${BUILD_SCRIPT}" \
+
+python "${BUILD_SCRIPT}" \
   --train_directory="${TRAIN_DIRECTORY}" \
   --validation_directory="${VALIDATION_DIRECTORY}" \
   --output_directory="${OUTPUT_DIRECTORY}" \
