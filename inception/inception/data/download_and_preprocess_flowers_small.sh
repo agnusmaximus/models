@@ -91,7 +91,7 @@ while read LABEL; do
   TRAIN_DIR_FOR_LABEL="${TRAIN_DIRECTORY}/${LABEL}"
 
   N_IMAGES=$(ls -1 "${TRAIN_DIR_FOR_LABEL}" | wc -l)
-  TO_DELETE_IMAGES=$(ls -1 "${TRAIN_DIR_FOR_LABEL}" | gshuf | head -n $((N_IMAGES-50)))
+  TO_DELETE_IMAGES=$(ls -1 "${TRAIN_DIR_FOR_LABEL}" | gshuf | head -n $((N_IMAGES-30)))
   for IMAGE in ${TO_DELETE_IMAGES}; do
     rm -f "${TRAIN_DIR_FOR_LABEL}/${IMAGE}"
   done
