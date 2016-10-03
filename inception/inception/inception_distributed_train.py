@@ -30,6 +30,7 @@ from tensorflow.python.client import timeline
 
 from inception import image_processing
 from inception import inception_model as inception
+from sync_replicas_optimizer_summarized import SyncReplicasOptimizerSummarized
 from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
@@ -195,7 +196,7 @@ def train(target, dataset, cluster_spec):
         tf.histogram_summary(var.op.name, var)
 
       # Create synchronous replica optimizer.
-      opt = tf.train.SyncReplicasOptimizer(
+      opt = SyncReplicasOptimizerSummarized(
           opt,
           replicas_to_aggregate=num_replicas_to_aggregate,
           replica_id=FLAGS.task_id,
