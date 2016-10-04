@@ -412,10 +412,10 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         with ops.control_dependencies([final_train_ops]):
           # Log start time of worker computation
           token = sync_token_queue.dequeue()
-          token = tf.Print(token, [token])
+          token_print = tf.Print(token, [token])
           train_op = state_ops.scatter_update(self._local_steps,
                                               self._replica_id,
-                                              token, name=name)
+                                              token_print, name=name)
 
         with ops.control_dependencies(clear_queue_ops):
           # Sync_op needs to insert tokens to the token queue at the end of the
