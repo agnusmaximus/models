@@ -414,7 +414,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         with ops.control_dependencies([final_train_ops]):
           # Log start time of worker computation
           token = sync_token_queue.dequeue()
-          token = logging_ops.Print(token)
+          token = logging_ops.Print(token, [token])
           train_op = state_ops.scatter_update(self._local_steps,
                                               self._replica_id,
                                               token, name=name)
