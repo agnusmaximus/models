@@ -36,9 +36,10 @@ for ip in ${ips[@]}; do
     ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip} "bash -s" <<EOF
 cd models
 cd inception
+rm -f out*
 git fetch && git reset --hard origin/master
 rm -rf /tmp/imagenet_train
-${tf_command[$index]} > out${index}
+${tf_command[$index]} > out${index} 2>&1 &
 EOF
     index=$((index+1))
 done

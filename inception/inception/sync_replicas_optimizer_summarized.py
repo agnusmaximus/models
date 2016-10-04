@@ -411,7 +411,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         # Replicas have to wait until they can get a token from the token queue.
         with ops.control_dependencies([final_train_ops]):
           # Log start time of worker computation
-          tf.Print(None, None, message="Begin trying to dequeue")
+          tf.Print([], [], message="Begin trying to dequeue")
           token = sync_token_queue.dequeue()
           train_op = state_ops.scatter_update(self._local_steps,
                                               self._replica_id,
