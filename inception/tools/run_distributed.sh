@@ -1,4 +1,4 @@
-key_location=../../DistributedSGD.pem
+key_location=../../../DistributedSGD.pem
 
 # Run tensorflow on running aws machines.
 ips=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PublicIpAddress" --output text))
@@ -34,6 +34,7 @@ for ip in ${ips[@]}; do
     echo $ip
     echo ${tf_command[$index]}
     ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip} "bash -s" <<EOF
+pkill python
 cd models
 cd inception
 rm -f out*
