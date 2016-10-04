@@ -6,7 +6,7 @@
 
 # Usage: sh run_distributed.sh [machine_tier] [n_instances]
 
-image_id=ami-f34b0293
+image_id=ami-57470e37
 default_machine_tier='t2.small'
 machine_tier=${1:-$default_machine_tier}
 default_n_instances=5
