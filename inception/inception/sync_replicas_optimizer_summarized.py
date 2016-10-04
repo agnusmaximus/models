@@ -21,7 +21,9 @@ from __future__ import print_function
 import tensorflow as tf
 from tensorflow.core.framework import types_pb2
 from tensorflow.python.framework import ops
+
 from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import logging_ops
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import data_flow_ops
 from tensorflow.python.ops import math_ops
