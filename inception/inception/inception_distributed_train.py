@@ -35,6 +35,7 @@ from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
 
+tf.app.flags.DEFINE_integer('total_iters', 1*2*5*10, 'Number of epochs to train.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -254,6 +255,12 @@ def train(target, dataset, cluster_spec):
 
       tf.logging.info('%s Supervisor' % datetime.now())
 
+      # Run for a certain number of total iters.
+      # iters_to_run = total_iters / n_replicas_to_aggregate
+      iters_to_run = FLAGS.total_iters / num_replicas_to_aggregate
+      print("Total iters: %d, Num workers: %d, So num iters: %d" %
+            (FLAGS.total_iters, num_replicas_to_aggregate, iters_to_run))
+
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
           log_device_placement=FLAGS.log_device_placement)
@@ -275,29 +282,20 @@ def train(target, dataset, cluster_spec):
       # specified interval. Note that the summary_op and train_op never run
       # simultaneously in order to prevent running out of GPU memory.
       next_summary_time = time.time() + FLAGS.save_summaries_secs
-      while not sv.should_stop():
+
+      for i in range(iters_to_run):
         try:
           start_time = time.time()
 
-          # Track statistics of the run using Timeline
-          run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-          run_metadata = tf.RunMetadata()
-
           # Run
-          loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
-
-          # Create timeline and write it to a json file
-          tl = timeline.Timeline(run_metadata.step_stats)
-          ctf = tl.generate_chrome_trace_format()
-          with open('timeline%d.json' % FLAGS.task_id, 'w') as f:
-            f.write(ctf)
+          loss_value, step = sess.run([train_op, global_step])
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
           if step > FLAGS.max_steps:
             break
           duration = time.time() - start_time
 
-          if step % 30 == 0:
+          if step % 30 == 0 or step == n_iters-1:
             examples_per_sec = FLAGS.batch_size / float(duration)
             format_str = ('Worker %d: %s: step %d, loss = %.2f'
                           '(%.1f examples/sec; %.3f  sec/batch)')
