@@ -35,7 +35,7 @@ from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_integer('total_iters', 1*2*5*10, 'Number of epochs to train.')
+tf.app.flags.DEFINE_integer('total_iters', 40, 'Number of epochs to train.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -295,7 +295,7 @@ def train(target, dataset, cluster_spec):
             break
           duration = time.time() - start_time
 
-          if step % 30 == 0 or step == n_iters-1:
+          if step % 30 == 0 or step == iters_to_run-1:
             examples_per_sec = FLAGS.batch_size / float(duration)
             format_str = ('Worker %d: %s: step %d, loss = %.2f'
                           '(%.1f examples/sec; %.3f  sec/batch)')
