@@ -36,7 +36,7 @@ FLAGS = tf.app.flags.FLAGS
 tf.app.flags.DEFINE_string('train_dir', '/tmp/imagenet_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 10000000,
+tf.app.flags.DEFINE_integer('max_steps', 40,
                             """Number of batches to run.""")
 tf.app.flags.DEFINE_string('subset', 'train',
                            """Either 'train' or 'validation'.""")
@@ -220,7 +220,7 @@ def train(dataset):
     # Number of classes in the Dataset label set plus 1.
     # Label 0 is reserved for an (unused) background class.
     num_classes = dataset.num_classes() + 1
-    
+
      # Split the batch of images and labels for towers.
     images_splits = tf.split(0, FLAGS.num_gpus, images)
     labels_splits = tf.split(0, FLAGS.num_gpus, labels)
@@ -330,6 +330,8 @@ def train(dataset):
     summary_writer = tf.train.SummaryWriter(
         FLAGS.train_dir,
         graph_def=sess.graph.as_graph_def(add_shapes=True))
+
+    print("Total iters: %d, Num workers: %d, So num iters: %d" % (FLAGS.max_steps, 1, FLAGS.max_steps))
 
     for step in xrange(FLAGS.max_steps):
       start_time = time.time()

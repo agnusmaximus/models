@@ -35,7 +35,7 @@ from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_integer('total_iters', 40, 'Number of epochs to train.')
+tf.app.flags.DEFINE_integer('max_steps', 40, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -257,9 +257,9 @@ def train(target, dataset, cluster_spec):
 
       # Run for a certain number of total iters.
       # iters_to_run = total_iters / n_replicas_to_aggregate
-      iters_to_run = FLAGS.total_iters / num_replicas_to_aggregate
+      iters_to_run = FLAGS.max_steps / num_replicas_to_aggregate
       print("Total iters: %d, Num workers: %d, So num iters: %d" %
-            (FLAGS.total_iters, num_replicas_to_aggregate, iters_to_run))
+            (FLAGS.max_steps, num_replicas_to_aggregate, iters_to_run))
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
