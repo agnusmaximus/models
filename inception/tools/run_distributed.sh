@@ -1,6 +1,8 @@
 # We assume num PS = 1
-# sh ./tools/run_distributed.sh
+# sh ./tools/run_distributed.sh batch_size
 
+default_batch_size=1
+n_instances=${1:-$default_batch_size}
 key_location=../../DistributedSGD.pem
 
 # Run tensorflow on running aws machines.
@@ -28,8 +30,8 @@ for ((i=0; i<n_hosts; i++)); do
     fi
 
     echo "Machine ${i} has id ${worker_id} and type ${node_type}"
-    echo "bazel-bin/inception/imagenet_train --batch_size=1 --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
-    tf_command[$i]="./bazel-bin/inception/imagenet_distributed_train --batch_size=1 --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
+    echo "bazel-bin/inception/imagenet_train --batch_size=${batch_size} --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
+    tf_command[$i]="./bazel-bin/inception/imagenet_distributed_train --batch_size=${batch_size} --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
 done
 
 # Loop through, ssh, and run command. Indentation messed up... :(

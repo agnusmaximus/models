@@ -1,0 +1,468 @@
+INFO:tensorflow:PS hosts are: ['54.67.35.194:1234']
+INFO:tensorflow:Worker hosts are: ['54.193.26.205:1234', '54.183.167.158:1234', '52.53.252.204:1234', '52.53.180.148:1234', '54.193.26.42:1234']
+I tensorflow/core/distributed_runtime/rpc/grpc_channel.cc:197] Initialize GrpcChannelCache for job ps -> {0 -> 54.67.35.194:1234}
+I tensorflow/core/distributed_runtime/rpc/grpc_channel.cc:197] Initialize GrpcChannelCache for job worker -> {0 -> localhost:1234, 1 -> 54.183.167.158:1234, 2 -> 52.53.252.204:1234, 3 -> 52.53.180.148:1234, 4 -> 54.193.26.42:1234}
+I tensorflow/core/distributed_runtime/rpc/grpc_server_lib.cc:211] Started server with target: grpc://localhost:1234
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.variable_op_scope(values, name, default_name) is deprecated, use tf.variable_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+WARNING:tensorflow:tf.op_scope(values, name, default_name) is deprecated, use tf.name_scope(name, default_name, values)
+INFO:tensorflow:SyncReplicas enabled: replicas_to_aggregate=5; total_num_replicas=5
+INFO:tensorflow:2016-10-04 06:08:43.213222 Supervisor
+I tensorflow/core/distributed_runtime/master_session.cc:1007] Start master session 8c7152cfe77cc1f6 with config: 
+allow_soft_placement: true
+
+INFO:tensorflow:Started 3 queues for processing input data.
+INFO:tensorflow:global_step/sec: 0
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561504282ms [0]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561505137ms [0]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561508958ms [0]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561510373ms [1]
+INFO:tensorflow:Worker 0: 2016-10-04 06:11:56.794254: step 0, loss = 8.85(0.0 examples/sec; 27.433  sec/batch)
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561517060ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561517117ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561526271ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561533212ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561535908ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561541155ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561548783ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561549163ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561556413ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561558296ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561564736ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561570084ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561572655ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561580524ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561581010ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561588964ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561591274ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561596657ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561598333ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561605227ms [1]
+INFO:tensorflow:global_step/sec: 0.118061
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561609150ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561613706ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561618606ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561621368ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561628881ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561630606ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561637073ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561641137ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561644571ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561651240ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561651992ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561659627ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561663698ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561665187ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561673621ms [1]
+INFO:tensorflow:Running Summary operation on the chief.
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561683500ms [1]
+INFO:tensorflow:Finished running Summary operation.
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561684024ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561692302ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561692628ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561701248ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561701720ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561708808ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561710804ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561715277ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561719184ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561721619ms [1]
+INFO:tensorflow:global_step/sec: 0.12501
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561728632ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561733117ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561736330ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561741947ms [1]
+INFO:tensorflow:Worker 0: 2016-10-04 06:15:42.112542: step 30, loss = 11.89(0.1 examples/sec; 9.133  sec/batch)
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561742212ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561750817ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561753177ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561759843ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561765527ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561766502ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561775990ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561780200ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561784256ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561790489ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561792516ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561798438ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561799766ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561807970ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561809800ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561816950ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561817649ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561826547ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561827834ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561834770ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561837082ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561841972ms [1]
+INFO:tensorflow:global_step/sec: 0.124998
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561848328ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561851971ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561860689ms [1]
+INFO:tensorflow:Running Summary operation on the chief.
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561868832ms [1]
+INFO:tensorflow:Finished running Summary operation.
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561869090ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561878044ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561882717ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561885844ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561892144ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561893752ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561903231ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561903682ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561913098ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561913324ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561923175ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561927434ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561933436ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561937693ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561943682ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561949794ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561950310ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561962130ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561966784ms [1]
+INFO:tensorflow:global_step/sec: 0.108183
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561972281ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561979238ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561980135ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561991282ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475561993596ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562008024ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562012825ms [1]
+INFO:tensorflow:Worker 0: 2016-10-04 06:20:12.930346: step 60, loss = 10.15(0.1 examples/sec; 19.553  sec/batch)
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562013131ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562029521ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562034687ms [1]
+INFO:tensorflow:Running Summary operation on the chief.
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562046425ms [1]
+INFO:tensorflow:Finished running Summary operation.
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562047769ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562062549ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562066929ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562067622ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562079492ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562083688ms [1]
+I tensorflow/core/kernels/logging_ops.cc:93] Time: 1475562085116ms [1]
+INFO:tensorflow:global_step/sec: 0.0999903
