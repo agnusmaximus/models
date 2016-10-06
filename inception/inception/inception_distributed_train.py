@@ -49,7 +49,6 @@ tf.app.flags.DEFINE_string('worker_hosts', '',
 tf.app.flags.DEFINE_string('train_dir', '/tmp/imagenet_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 1000000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('subset', 'train', 'Either "train" or "validation".')
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             'Whether to log device placement.')
@@ -291,8 +290,6 @@ def train(target, dataset, cluster_spec):
           loss_value, step = sess.run([train_op, global_step])
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
-          if step > FLAGS.max_steps:
-            break
           duration = time.time() - start_time
 
           if step % 30 == 0 or step == iters_to_run-1:
