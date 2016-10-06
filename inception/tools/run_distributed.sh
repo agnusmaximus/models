@@ -1,3 +1,5 @@
+# sh ./tools/run_distributed.sh
+
 key_location=../../DistributedSGD.pem
 
 # Run tensorflow on running aws machines.
@@ -8,8 +10,8 @@ start=0
 echo "Running machines: ${ips_string}"
 
 private_ips_string=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PrivateIpAddress" --output text)
-worker_hosts=$(python extract_workers_ps.py workers ${private_ips_string})
-ps_hosts=$(python extract_workers_ps.py ps ${private_ips_string})
+worker_hosts=$(python ./tools/extract_workers_ps.py workers ${private_ips_string})
+ps_hosts=$(python ./tools/extract_workers_ps.py ps ${private_ips_string})
 echo ${worker_hosts}
 echo ${ps_hosts}
 
