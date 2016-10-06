@@ -256,7 +256,7 @@ def train(target, dataset, cluster_spec):
 
       # Run for a certain number of total iters.
       # iters_to_run = total_iters / n_replicas_to_aggregate
-      iters_to_run = FLAGS.max_steps / num_replicas_to_aggregate
+      iters_to_run = int(FLAGS.max_steps / num_replicas_to_aggregate)
       print("Total iters: %d, Num workers: %d, So num iters: %d" %
             (FLAGS.max_steps, num_replicas_to_aggregate, iters_to_run))
 
