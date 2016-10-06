@@ -35,7 +35,7 @@ from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_integer('max_steps', 40, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('max_steps', 10, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
