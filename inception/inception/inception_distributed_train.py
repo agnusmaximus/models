@@ -254,12 +254,6 @@ def train(target, dataset, cluster_spec):
 
       tf.logging.info('%s Supervisor' % datetime.now())
 
-      # Run for a certain number of total iters.
-      # iters_to_run = total_iters / n_replicas_to_aggregate
-      iters_to_run = int(FLAGS.max_steps / num_replicas_to_aggregate)
-      tf.logging.info("Total iters: %d, Num workers: %d, So num iters: %d" %
-                      (FLAGS.max_steps, num_replicas_to_aggregate, iters_to_run))
-
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
           log_device_placement=FLAGS.log_device_placement)
@@ -283,7 +277,7 @@ def train(target, dataset, cluster_spec):
       next_summary_time = time.time() + FLAGS.save_summaries_secs
       begin_train_time = time.time()
 
-      for i in range(iters_to_run):
+      for i in range(FLAGS_max_iters):
         try:
           start_time = time.time()
 
@@ -293,7 +287,7 @@ def train(target, dataset, cluster_spec):
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
           duration = time.time() - start_time
 
-          if step % 30 == 0 or step == iters_to_run-1:
+          if step % 30 == 0 or step == FLAGS_max_iters-1:
             examples_per_sec = FLAGS.batch_size / float(duration)
             format_str = ('Worker %d: %s: step %d, loss = %.2f'
                           '(%.1f examples/sec; %.3f  sec/batch)')

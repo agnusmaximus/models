@@ -331,8 +331,6 @@ def train(dataset):
         FLAGS.train_dir,
         graph_def=sess.graph.as_graph_def(add_shapes=True))
 
-    tf.logging.info("Total iters: %d, Num workers: %d, So num iters: %d" % (FLAGS.max_steps, 1, FLAGS.max_steps))
-
     begin_train_time = time.time()
 
     for step in xrange(FLAGS.max_steps):
