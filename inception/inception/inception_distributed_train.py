@@ -299,6 +299,7 @@ def train(target, dataset, cluster_spec):
             tf.logging.info(format_str %
                             (FLAGS.task_id, datetime.now(), step, loss_value,
                              examples_per_sec, duration))
+            tf.logging.info("Elapsed time: %f" % (time.time()-start_time))
 
           # Determine if the summary_op should be run on the chief worker.
           if is_chief and next_summary_time < time.time():

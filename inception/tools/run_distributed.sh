@@ -1,3 +1,4 @@
+# We assume num PS = 1
 # sh ./tools/run_distributed.sh
 
 key_location=../../DistributedSGD.pem

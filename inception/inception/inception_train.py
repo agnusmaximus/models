@@ -334,6 +334,9 @@ def train(dataset):
     print("Total iters: %d, Num workers: %d, So num iters: %d" % (FLAGS.max_steps, 1, FLAGS.max_steps))
 
     for step in xrange(FLAGS.max_steps):
+      if step == 0:
+        tf.logging.info("Starting training...")
+
       start_time = time.time()
       _, loss_value = sess.run([train_op, loss])
       duration = time.time() - start_time
@@ -346,6 +349,7 @@ def train(dataset):
                       'sec/batch)')
         print(format_str % (datetime.now(), step, loss_value,
                             examples_per_sec, duration))
+        tf.logging.info("Elapsed time: %f" % (time.time()-start_time))
 
       if step % 100 == 0:
         summary_str = sess.run(summary_op)
