@@ -287,6 +287,9 @@ def train(target, dataset, cluster_spec):
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
           duration = time.time() - start_time
 
+          if step > FLAGS.max_steps:
+            break
+
           if step % 30 == 0 or step == FLAGS_max_steps-1:
             examples_per_sec = FLAGS.batch_size / float(duration)
             format_str = ('Worker %d: %s: step %d, loss = %.2f'
@@ -306,8 +309,6 @@ def train(target, dataset, cluster_spec):
             # Determine the next time for running the summary.
             next_summary_time += FLAGS.save_summaries_secs
 
-          if step > FLAGS.max_steps:
-            break
         except:
           if is_chief:
             tf.logging.info('About to execute sync_clean_up_op!')
