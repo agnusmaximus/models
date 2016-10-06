@@ -2,7 +2,7 @@
 # sh ./tools/run_distributed.sh batch_size
 
 default_batch_size=1
-n_instances=${1:-$default_batch_size}
+batch_size=${1:-$default_batch_size}
 key_location=../../DistributedSGD.pem
 
 # Run tensorflow on running aws machines.
