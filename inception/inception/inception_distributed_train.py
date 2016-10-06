@@ -277,7 +277,7 @@ def train(target, dataset, cluster_spec):
       next_summary_time = time.time() + FLAGS.save_summaries_secs
       begin_train_time = time.time()
 
-      for i in range(FLAGS_max_iters):
+      for i in range(FLAGS.max_iters):
         try:
           start_time = time.time()
 
