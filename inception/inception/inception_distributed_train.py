@@ -35,7 +35,7 @@ from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_integer('max_iterations', 40, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('max_steps', 40, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -277,7 +277,7 @@ def train(target, dataset, cluster_spec):
       next_summary_time = time.time() + FLAGS.save_summaries_secs
       begin_train_time = time.time()
 
-      for iii in range(FLAGS.max_iterations):
+      while not sv.should_stop():
         try:
           start_time = time.time()
 
@@ -287,7 +287,7 @@ def train(target, dataset, cluster_spec):
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
           duration = time.time() - start_time
 
-          if step % 30 == 0 or step == FLAGS_max_iterations-1:
+          if step % 30 == 0 or step == FLAGS_max_steps-1:
             examples_per_sec = FLAGS.batch_size / float(duration)
             format_str = ('Worker %d: %s: step %d, loss = %.2f'
                           '(%.1f examples/sec; %.3f  sec/batch)')
@@ -305,6 +305,9 @@ def train(target, dataset, cluster_spec):
 
             # Determine the next time for running the summary.
             next_summary_time += FLAGS.save_summaries_secs
+
+          if step > FLAGS.max_steps:
+            break
         except:
           if is_chief:
             tf.logging.info('About to execute sync_clean_up_op!')
