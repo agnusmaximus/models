@@ -281,6 +281,7 @@ def train(target, dataset, cluster_spec):
       # specified interval. Note that the summary_op and train_op never run
       # simultaneously in order to prevent running out of GPU memory.
       next_summary_time = time.time() + FLAGS.save_summaries_secs
+      begin_train_time = time.time()
 
       for i in range(iters_to_run):
         try:
@@ -299,7 +300,7 @@ def train(target, dataset, cluster_spec):
             tf.logging.info(format_str %
                             (FLAGS.task_id, datetime.now(), step, loss_value,
                              examples_per_sec, duration))
-            tf.logging.info("Elapsed time: %f" % (time.time()-start_time))
+            tf.logging.info("Elapsed time: %f" % (time.time()-begin_train_time))
 
           # Determine if the summary_op should be run on the chief worker.
           if is_chief and next_summary_time < time.time():
