@@ -315,7 +315,7 @@ def train(target, dataset, cluster_spec):
           raise
 
       if is_chief:
-        print("Time Elapsed: %f" % (time.time()-begin_train_time))
+        tf.logging.info("Time Elapsed: %f" % (time.time()-begin_train_time))
 
       # Stop the supervisor.  This also waits for service threads to finish.
       sv.stop()
