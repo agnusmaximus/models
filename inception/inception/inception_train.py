@@ -331,7 +331,7 @@ def train(dataset):
         FLAGS.train_dir,
         graph_def=sess.graph.as_graph_def(add_shapes=True))
 
-    print("Total iters: %d, Num workers: %d, So num iters: %d" % (FLAGS.max_steps, 1, FLAGS.max_steps))
+    tf.logging.info("Total iters: %d, Num workers: %d, So num iters: %d" % (FLAGS.max_steps, 1, FLAGS.max_steps))
 
     for step in xrange(FLAGS.max_steps):
       if step == 0:
