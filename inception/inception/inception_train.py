@@ -349,6 +349,7 @@ def train(dataset):
                       'sec/batch)')
         print(format_str % (datetime.now(), step, loss_value,
                             examples_per_sec, duration))
+        print("Elapsed time: %f" % (time.time()-begin_train_time))
 
       if step % 100 == 0:
         summary_str = sess.run(summary_op)
@@ -359,4 +360,4 @@ def train(dataset):
         checkpoint_path = os.path.join(FLAGS.train_dir, 'model.ckpt')
         saver.save(sess, checkpoint_path, global_step=step)
 
-    tf.logging.info("Elapsed time: %f" % (time.time()-begin_train_time))
+    print("Elapsed time: %f" % (time.time()-begin_train_time))
