@@ -446,7 +446,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
 # gradients which is not possible in this implementation without significant
 # overhead. This is kept here just for backward compatibility and will be
 # DEPRECATED later.
-class SyncReplicasOptimizer(optimizer.Optimizer):
+class SyncReplicasOptimizerSummarizedOld(optimizer.Optimizer):
   """Class to synchronize, aggregate gradients and pass them to the optimizer.
 
   In a typical asynchronous training environment, it's common to have some
@@ -584,7 +584,7 @@ class SyncReplicasOptimizer(optimizer.Optimizer):
     if total_num_replicas == 0:
       total_num_replicas = replicas_to_aggregate
 
-    super(SyncReplicasOptimizer, self).__init__(use_locking, name)
+    super(SyncReplicasOptimizerSummarizedOld, self).__init__(use_locking, name)
     logging.info("""TO BE DEPRECATED!!!
                  This version will be deprecated. Please switch to V2 at your
                  earliest convenience.""")

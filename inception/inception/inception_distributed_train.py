@@ -21,21 +21,19 @@ from __future__ import division
 from __future__ import print_function
 
 from datetime import datetime
+from sync_replicas_optimizer_summarized import SyncReplicasOptimizerSummarized
 import os.path
 import time
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python.client import timeline
 
 from inception import image_processing
 from inception import inception_model as inception
-from sync_replicas_optimizer_summarized import SyncReplicasOptimizerSummarized
 from inception.slim import slim
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_integer('max_steps', 1, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -49,6 +47,7 @@ tf.app.flags.DEFINE_string('worker_hosts', '',
 tf.app.flags.DEFINE_string('train_dir', '/tmp/imagenet_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
+tf.app.flags.DEFINE_integer('max_steps', 1, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('subset', 'train', 'Either "train" or "validation".')
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             'Whether to log device placement.')
@@ -196,12 +195,13 @@ def train(target, dataset, cluster_spec):
         tf.histogram_summary(var.op.name, var)
 
       # Create synchronous replica optimizer.
-      opt = SyncReplicasOptimizerSummarized(
-        opt,
-        replicas_to_aggregate=num_replicas_to_aggregate,
-        total_num_replicas=num_workers,
-        variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)
+      opt = tf.train.SyncReplicasOptimizerSummarizedOld(
+          opt,
+          replicas_to_aggregate=num_replicas_to_aggregate,
+          replica_id=FLAGS.task_id,
+          total_num_replicas=num_workers,
+          variable_averages=exp_moving_averager,
+          variables_to_average=variables_to_average)
 
       batchnorm_updates = tf.get_collection(slim.ops.UPDATE_OPS_COLLECTION)
       assert batchnorm_updates, 'Batchnorm updates are missing'
@@ -228,6 +228,7 @@ def train(target, dataset, cluster_spec):
       # More details can be found in sync_replicas_optimizer.
       chief_queue_runners = [opt.get_chief_queue_runner()]
       init_tokens_op = opt.get_init_tokens_op()
+      clean_up_op = opt.get_clean_up_op()
 
       # Create a saver.
       saver = tf.train.Saver()
@@ -273,20 +274,14 @@ def train(target, dataset, cluster_spec):
       # specified interval. Note that the summary_op and train_op never run
       # simultaneously in order to prevent running out of GPU memory.
       next_summary_time = time.time() + FLAGS.save_summaries_secs
-      begin_train_time = time.time()
-
       while not sv.should_stop():
         try:
           start_time = time.time()
-
-          # Run
           loss_value, step = sess.run([train_op, global_step])
-
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
-          duration = time.time() - start_time
-
           if step > FLAGS.max_steps:
             break
+          duration = time.time() - start_time
 
           if step % 30 == 0:
             examples_per_sec = FLAGS.batch_size / float(duration)
@@ -305,14 +300,11 @@ def train(target, dataset, cluster_spec):
 
             # Determine the next time for running the summary.
             next_summary_time += FLAGS.save_summaries_secs
-
         except:
           if is_chief:
             tf.logging.info('About to execute sync_clean_up_op!')
+            sess.run(clean_up_op)
           raise
-
-      if is_chief:
-        tf.logging.info("Time Elapsed: %f" % (time.time()-begin_train_time))
 
       # Stop the supervisor.  This also waits for service threads to finish.
       sv.stop()
