@@ -410,6 +410,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
       final_train_ops = control_flow_ops.cond(is_stale, no_op_grad, real_grad)
 
       with ops.control_dependencies([final_train_ops]):
+        final_train_ops = logging_ops.Print(final_train_ops, [local_step])
         with ops.device(global_step.device), ops.name_scope(""):
           token = sync_token_queue.dequeue()
           token = logging_ops.Print(token, [token])
