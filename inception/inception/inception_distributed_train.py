@@ -274,6 +274,7 @@ def train(target, dataset, cluster_spec):
       # specified interval. Note that the summary_op and train_op never run
       # simultaneously in order to prevent running out of GPU memory.
       next_summary_time = time.time() + FLAGS.save_summaries_secs
+      begin_time = time.time()
       while not sv.should_stop():
         try:
           start_time = time.time()
@@ -305,6 +306,9 @@ def train(target, dataset, cluster_spec):
             tf.logging.info('About to execute sync_clean_up_op!')
             sess.run(clean_up_op)
           raise
+
+      if is_chief:
+        tf.logging.info('Elapsed Time: %f' % (time.time()-begin_time))
 
       # Stop the supervisor.  This also waits for service threads to finish.
       sv.stop()
