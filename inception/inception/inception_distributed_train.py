@@ -197,12 +197,11 @@ def train(target, dataset, cluster_spec):
 
       # Create synchronous replica optimizer.
       opt = SyncReplicasOptimizerSummarized(
-          opt,
-          replicas_to_aggregate=num_replicas_to_aggregate,
-          replica_id=FLAGS.task_id,
-          total_num_replicas=num_workers,
-          variable_averages=exp_moving_averager,
-          variables_to_average=variables_to_average)
+        opt,
+        replicas_to_aggregate=num_replicas_to_aggregate,
+        total_num_replicas=num_workers,
+        variable_averages=exp_moving_averager,
+        variables_to_average=variables_to_average)
 
       batchnorm_updates = tf.get_collection(slim.ops.UPDATE_OPS_COLLECTION)
       assert batchnorm_updates, 'Batchnorm updates are missing'
