@@ -41,7 +41,7 @@ for ((i=0; i<n_hosts; i++)); do
     fi
 
     echo "Machine ${i} has id ${worker_id} and type ${node_type}"
-    echo "bazel-bin/inception/imagenet_train --input_queue_memory_factor=1 --batch_size=${batch_size} --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
+    echo "bazel-bin/inception/imagenet_train --batch_size=${batch_size} --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
     tf_command[$i]="./bazel-bin/inception/imagenet_distributed_train --input_queue_memory_factor=1 --batch_size=${batch_size} --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
 done
 
