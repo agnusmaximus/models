@@ -408,7 +408,6 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
       no_op_grad = lambda: [control_flow_ops.no_op(name="no_grad_enqueue")]
       real_grad = lambda: [control_flow_ops.group(*train_ops)]
       final_train_ops = control_flow_ops.cond(is_stale, no_op_grad, real_grad)
-      final_train_ops = logging_ops.Print(final_train_ops, [final_train_ops])
 
       with ops.control_dependencies([final_train_ops]):
         with ops.device(global_step.device), ops.name_scope(""):
