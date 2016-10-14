@@ -258,7 +258,8 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         initial_value=0,
         trainable=False,
         collections=[ops.GraphKeys.LOCAL_VARIABLES],
-        name="sync_rep_local_step")
+        name="sync_rep_local_step",
+        dtype=tf.int64)
     self.local_step_init_op = state_ops.assign(self._local_step, global_step)
     chief_init_ops = [self.local_step_init_op]
     self.ready_for_local_init_op = variables.report_uninitialized_variables(
