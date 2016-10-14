@@ -1,18 +1,29 @@
+#!/bin/bash
+
 # We assume num PS = 1
 # sh ./tools/run_distributed.sh batch_size
-
 default_batch_size=1
 batch_size=${1:-$default_batch_size}
 key_location=../../DistributedSGD.pem
 
-# Run tensorflow on running aws machines.
-ips=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PublicIpAddress" --output text))
-ips_string=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PublicIpAddress" --output text)
-n_hosts=${#ips[@]}
-start=0
-echo "Running machines: ${ips_string}"
+count_public_private_ips=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].[PrivateIpAddress,PublicIpAddress]" --output text)
+count=${#count_public_private_ips[@]}
+public_private_ips_string="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].[PrivateIpAddress,PublicIpAddress]" --output text)"
 
-private_ips_string=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PrivateIpAddress" --output text)
+echo "Private Public Ips"
+echo ${public_private_ips_string}
+
+# Run tensorflow on running aws machines.
+ips=($(echo ${public_private_ips_string} | awk -F' ' '{ for (i=2;i<=NF;i+=2) print $i }'))
+echo "Public Ips"
+echo ${ips}
+n_hosts=${#ips[@]}
+
+private_ips=$(echo ${public_private_ips_string} | awk -F' ' '{ for (i=1;i<=NF;i+=2) print $i }')
+private_ips_string="$(echo ${private_ips})"
+echo "Private Ips"
+echo ${private_ips}
+
 worker_hosts=$(python ./tools/extract_workers_ps.py workers ${private_ips_string})
 ps_hosts=$(python ./tools/extract_workers_ps.py ps ${private_ips_string})
 echo ${worker_hosts}
