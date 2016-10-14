@@ -322,6 +322,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         # Replicas have to wait until they can get a token from the token queue.
         with ops.control_dependencies(train_ops):
           token = sync_token_queue.dequeue()
+          token = logging_ops.Print(token, [token])
         train_op = state_ops.assign(self._local_step, token)
 
         with ops.control_dependencies([update_op]):
