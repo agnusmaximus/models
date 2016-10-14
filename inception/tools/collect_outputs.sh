@@ -21,6 +21,6 @@ for ip in ${ips[@]}; do
 pkill python
 EOF
     # Collect the outputs
-    scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip}:~/models/inception/out${index} ${outfile_location}
+    scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip}:~/models/inception/out* ${outfile_location}
     index=$((index+1))
 done
