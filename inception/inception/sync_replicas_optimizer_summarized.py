@@ -409,13 +409,12 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
       real_grad = lambda: [control_flow_ops.group(*train_ops)]
       final_train_ops = control_flow_ops.cond(is_stale, no_op_grad, real_grad)
 
-      with ops.control_dependencies([final_train_ops]):
-        final_train_ops = logging_ops.Print(final_train_ops, [local_step])
-        with ops.device(global_step.device), ops.name_scope(""):
+      with ops.device(global_step.device), ops.name_scope(""):
+        with ops.control_dependencies([final_train_ops]):
+
+          # Replicas have to wait until they can get a token from the token queue.
           token = sync_token_queue.dequeue()
           token = logging_ops.Print(token, [token])
-          # Replicas have to wait until they can get a token from the token queue.
-          # Log start time of worker computation
           train_op = state_ops.scatter_update(self._local_steps,
                                               self._replica_id,
                                               token, name=name)
