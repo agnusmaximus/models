@@ -2,13 +2,14 @@
 
 # We assume num PS = 1
 # sh ./tools/run_distributed.sh batch_size
+region="us-west-2"
 default_batch_size=1
 batch_size=${1:-$default_batch_size}
 key_location=../../DistributedSGD.pem
 
-count_public_private_ips=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].[PrivateIpAddress,PublicIpAddress]" --output text)
+count_public_private_ips=$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region ${region} --query "Reservations[*].Instances[*].[PrivateIpAddress,PublicIpAddress]" --output text)
 count=${#count_public_private_ips[@]}
-public_private_ips_string="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].[PrivateIpAddress,PublicIpAddress]" --output text)"
+public_private_ips_string="$(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region ${region} --query "Reservations[*].Instances[*].[PrivateIpAddress,PublicIpAddress]" --output text)"
 
 echo "Private Public Ips"
 echo ${public_private_ips_string}
