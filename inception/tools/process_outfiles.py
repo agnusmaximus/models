@@ -40,7 +40,6 @@ def get_arrival_times(f):
             if iteration not in times:
                 times[iteration] = []
             times[iteration].append(timestamp_ms)
-    print(times)
     return times
 
 def draw_arrival_times_histogram(f, output_name):
