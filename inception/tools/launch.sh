@@ -6,10 +6,15 @@
 
 # Usage: sh run_distributed.sh [machine_tier] [n_instances]
 
-region="us-west-2"
-availability_zone="us-west-2a"
-#image_id=ami-326b2352 # For ${us-west-1}
-image_id=ami-2614ce46 # For us-west-2
+region="us-west-2" # Spot
+availability_zone="us-west-2a" # Spot
+#region="us-west-1" # On demand
+#availability_zone="us-west-1a" # On demand
+
+#image_id=ami-326b2352 # For us-west-1
+image_id=ami-7a24fe1a # For us-west-2
+
+spot_price=.09
 default_machine_tier='m4.2xlarge'
 machine_tier=${1:-$default_machine_tier}
 default_n_instances=5
@@ -87,10 +92,10 @@ fi
 # Launch machines and wait for them to be ready
 
 # For on demand launching
-# aws ec2 run-instances --region ${region} --image-id "${image_id}" --count "${n_instances}" --instance-type "${machine_tier}" --key-name "${key_name}" > /dev/null
+#aws ec2 run-instances --region ${region} --image-id "${image_id}" --count "${n_instances}" --instance-type "${machine_tier}" --key-name "${key_name}" > /dev/null
 
 # For spot instance launching
-aws ec2 request-spot-instances --spot-price 0.08 --instance-count ${n_instances} --launch-specification "{\"KeyName\":\"DistributedSGD\",\"Placement\":{\"AvailabilityZone\":\"${availability_zone}\"},\"ImageId\":\"${image_id}\",\"InstanceType\":\"${machine_tier}\",\"SecurityGroups\":[\"default\"]}"
+aws ec2 request-spot-instances --spot-price ${spot_price} --instance-count ${n_instances} --launch-specification "{\"KeyName\":\"DistributedSGD\",\"Placement\":{\"AvailabilityZone\":\"${availability_zone}\"},\"ImageId\":\"${image_id}\",\"InstanceType\":\"${machine_tier}\",\"SecurityGroups\":[\"default\"]}"
 
 echo "Launched instances..."
 echo "Waiting for launched instances to be ready..."
