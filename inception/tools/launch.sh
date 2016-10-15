@@ -90,7 +90,7 @@ fi
 # aws ec2 run-instances --region ${region} --image-id "${image_id}" --count "${n_instances}" --instance-type "${machine_tier}" --key-name "${key_name}" > /dev/null
 
 # For spot instance launching
-aws ec2 request-spot-instances --spot-price 0.08 --instance-count ${n_instances} --launch-specification "{\"Placement\":{\"AvailabilityZone\":\"${availability_zone}\"},\"ImageId\":\"${image_id}\",\"InstanceType\":\"${machine_tier}\",\"SecurityGroups\":[\"default\"]}"
+aws ec2 request-spot-instances --spot-price 0.08 --instance-count ${n_instances} --launch-specification "{\"KeyName\":\"DistributedSGD\",\"Placement\":{\"AvailabilityZone\":\"${availability_zone}\"},\"ImageId\":\"${image_id}\",\"InstanceType\":\"${machine_tier}\",\"SecurityGroups\":[\"default\"]}"
 
 echo "Launched instances..."
 echo "Waiting for launched instances to be ready..."
