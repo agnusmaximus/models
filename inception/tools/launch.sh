@@ -6,15 +6,27 @@
 
 # Usage: sh run_distributed.sh [machine_tier] [n_instances]
 
-image_id=ami-326b2352
-default_machine_tier='t2.small'
+region="us-west-2"
+availability_zone="us-west-2a"
+#image_id=ami-326b2352 # For ${us-west-1}
+image_id=ami-2614ce46 # For us-west-2
+default_machine_tier='m4.2xlarge'
 machine_tier=${1:-$default_machine_tier}
 default_n_instances=5
 n_instances=${2:-$default_n_instances}
 key_name=DistributedSGD
 
-# Check for running instances
-running_instances=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].InstanceId" --output text))
+# Cancel all spot instance requests
+pending_spot_requests="$(aws ec2 describe-spot-instance-requests --filters "Name=state,Values=open" --query "SpotInstanceRequests[*].SpotInstanceRequestId" --output text)"
+active_spot_requests="$(aws ec2 describe-spot-instance-requests --filters "Name=state,Values=active" --query "SpotInstanceRequests[*].SpotInstanceRequestId" --output text)"
+echo "Cancelling the following spot requests"
+echo ${pending_spot_requests}
+echo ${active_spot_requests}
+aws ec2 cancel-spot-instance-requests --spot-instance-request-ids ${pending_spot_requests}
+aws ec2 cancel-spot-instance-requests --spot-instance-request-ids ${active_spot_requests}
+
+# Check for running instances and shut them down
+running_instances=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region ${region} --query "Reservations[*].Instances[*].InstanceId" --output text))
 
 if [ ${#running_instances[@]} == 0 ]; then
     echo "No running ec2 instances... continuing"
@@ -30,13 +42,13 @@ else
 
     for running_instance in ${running_instances[@]}; do
 	echo "Terminating ${running_instance}..."
-	aws ec2 terminate-instances --region us-west-1 --instance-ids ${running_instance} > /dev/null
+	aws ec2 terminate-instances --region ${region} --instance-ids ${running_instance} > /dev/null
     done
     echo "Done. Continuing."
 fi
 
-# Check for pending instances
-pending_instances=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=pending" --region us-west-1 --query "Reservations[*].Instances[*].InstanceId" --output text))
+# Check for pending instances and shut them down
+pending_instances=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=pending" --region ${region} --query "Reservations[*].Instances[*].InstanceId" --output text))
 
 if [ ${#pending_instances[@]} == 0 ]; then
     echo "No pending ec2 instances... continuing"
@@ -52,7 +64,7 @@ else
 
     for pending_instance in ${pending_instances[@]}; do
 	echo "Terminating ${pending_instance}..."
-	aws ec2 terminate-instances --region us-west-1 --instance-ids ${pending_instance} > /dev/null
+	aws ec2 terminate-instances --region ${region} --instance-ids ${pending_instance} > /dev/null
     done
     echo "Done. Continuing."
 fi
@@ -73,13 +85,19 @@ then
 fi
 
 # Launch machines and wait for them to be ready
-aws ec2 run-instances --region us-west-1 --image-id "${image_id}" --count "${n_instances}" --instance-type "${machine_tier}" --key-name "${key_name}" > /dev/null
+
+# For on demand launching
+# aws ec2 run-instances --region ${region} --image-id "${image_id}" --count "${n_instances}" --instance-type "${machine_tier}" --key-name "${key_name}" > /dev/null
+
+# For spot instance launching
+aws ec2 request-spot-instances --spot-price 0.08 --instance-count ${n_instances} --launch-specification "{\"Placement\":{\"AvailabilityZone\":\"${availability_zone}\"},\"ImageId\":\"${image_id}\",\"InstanceType\":\"${machine_tier}\",\"SecurityGroups\":[\"default\"]}"
+
 echo "Launched instances..."
 echo "Waiting for launched instances to be ready..."
 
-ips=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PublicIpAddress" --output text))
+ips=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region ${region} --query "Reservations[*].Instances[*].PublicIpAddress" --output text))
 while [ ${#ips[@]} -ne "${n_instances}" ]; do
-    ips=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region us-west-1 --query "Reservations[*].Instances[*].PublicIpAddress" --output text))
+    ips=($(aws ec2 describe-instances --filters "Name=instance-state-name,Values=running" --region ${region} --query "Reservations[*].Instances[*].PublicIpAddress" --output text))
     echo "${#ips[@]} Machines up..."
     sleep 5
 done
