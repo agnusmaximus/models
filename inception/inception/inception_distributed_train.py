@@ -220,7 +220,6 @@ def train(target, dataset, cluster_spec):
 
       # Compute gradients with respect to the loss.
       grads = opt.compute_gradients(total_loss)
-      grads = tf.Print(grads, [grads], message="Done calculating grads")
 
       # Add histograms for gradients.
       for grad, var in grads:
