@@ -262,7 +262,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         collections=[ops.GraphKeys.LOCAL_VARIABLES],
         name="sync_rep_local_step",
         dtype=tf.int64)
-    self.local_step_init_op = logging_ops.Print(state_ops.assign(self._local_step, global_step), [self._local_step, global_step], message="Assigning local from global step")
+    self.local_step_init_op = state_ops.assign(self._local_step, global_step)
     chief_init_ops = [self.local_step_init_op]
     self.ready_for_local_init_op = variables.report_uninitialized_variables(
         variables.all_variables())
@@ -325,7 +325,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         # Replicas have to wait until they can get a token from the token queue.
         with ops.control_dependencies(train_ops):
           token = sync_token_queue.dequeue()
-          token = logging_ops.Print(token, [token])
+          #token = logging_ops.Print(token, [token])
         train_op = state_ops.assign(self._local_step, token)
 
         with ops.control_dependencies([update_op]):
