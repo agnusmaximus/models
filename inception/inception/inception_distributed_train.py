@@ -286,19 +286,20 @@ def train(target, dataset, cluster_spec):
       begin_time = time.time()
       while not sv.should_stop():
         try:
-          run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-          run_metadata = tf.RunMetadata()
+          #run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+          #run_metadata = tf.RunMetadata()
 
           start_time = time.time()
-          loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
+          #loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
+          loss_value, step = sess.run([train_op, global_step])
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
-          # Create the Timeline object, and write it to a json
+          """# Create the Timeline object, and write it to a json
           tl = timeline.Timeline(run_metadata.step_stats)
           ctf = tl.generate_chrome_trace_format()
           with open('timeline_iter=%d.json' % step, 'w') as f:
-            f.write(ctf)
+            f.write(ctf)"""
 
           if step > FLAGS.max_steps:
             break
