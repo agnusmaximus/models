@@ -32,6 +32,7 @@ from inception import image_processing
 from inception import inception_model as inception
 from inception.slim import slim
 from tensorflow.python.ops import logging_ops
+from tensorflow.python.client import timeline
 
 FLAGS = tf.app.flags.FLAGS
 
