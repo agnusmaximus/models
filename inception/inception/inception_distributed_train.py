@@ -36,6 +36,7 @@ from tensorflow.python.client import timeline
 
 FLAGS = tf.app.flags.FLAGS
 
+tf.app.flags.DEFINE_boolean('timeline_logging', True, 'Whether to log timeline of events.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -286,25 +287,27 @@ def train(target, dataset, cluster_spec):
       begin_time = time.time()
       while not sv.should_stop():
         try:
-          #run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-          #run_metadata = tf.RunMetadata()
-
           start_time = time.time()
-          #loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
-          loss_value, step = sess.run([train_op, global_step])
+          if FLAGS.timeline_logging:
+            run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+            run_metadata = tf.RunMetadata()
+            loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
+          else:
+            loss_value, step = sess.run([train_op, global_step])
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
-          """# Create the Timeline object, and write it to a json
-          tl = timeline.Timeline(run_metadata.step_stats)
-          ctf = tl.generate_chrome_trace_format()
-          with open('timeline_iter=%d.json' % step, 'w') as f:
-            f.write(ctf)"""
+          # Create the Timeline object, and write it to a json
+          if FLAGS.timeline_logging:
+            tl = timeline.Timeline(run_metadata.step_stats)
+            ctf = tl.generate_chrome_trace_format()
+            with open('timeline_iter=%d.json' % step, 'w') as f:
+              f.write(ctf)
 
           if step > FLAGS.max_steps:
             break
-          duration = time.time() - start_time
 
+          duration = time.time() - start_time
           examples_per_sec = FLAGS.batch_size / float(duration)
           format_str = ('Worker %d: %s: step %d, loss = %.2f'
                         '(%.1f examples/sec; %.3f  sec/batch)')
