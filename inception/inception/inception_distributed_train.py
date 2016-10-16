@@ -31,6 +31,7 @@ import tensorflow as tf
 from inception import image_processing
 from inception import inception_model as inception
 from inception.slim import slim
+from tensorflow.python.ops import logging_ops
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -219,6 +220,7 @@ def train(target, dataset, cluster_spec):
 
       # Compute gradients with respect to the loss.
       grads = opt.compute_gradients(total_loss)
+      grads = logging_ops.Print(grads, [global_step], message="Done calculating grads")
 
       # Add histograms for gradients.
       for grad, var in grads:
