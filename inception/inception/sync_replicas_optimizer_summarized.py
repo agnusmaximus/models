@@ -327,6 +327,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
           token = sync_token_queue.dequeue()
           token = logging_ops.Print(token, [token])
         train_op = state_ops.assign(self._local_step, token)
+        train_op = logging_ops.Print(train_op, [train_op], "train_op WHAT IS THIS???")
 
         with ops.control_dependencies([update_op]):
           # Sync_op needs to insert tokens to the token queue at the end of the
@@ -336,8 +337,8 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
 
         if self._variable_averages is not None:
           with ops.control_dependencies([sync_op]), ops.name_scope(""):
-            sync_op = logging_ops.Print(self._variable_averages.apply(
-              self._variables_to_average), [token], message="Pushed all step tokens to queue; Starting next iteration")
+            sync_op = self._variable_averages.apply(
+                self._variables_to_average)
 
         self._chief_queue_runner = queue_runner.QueueRunner(dummy_queue,
                                                             [sync_op])
