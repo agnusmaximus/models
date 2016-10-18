@@ -21,7 +21,7 @@ from __future__ import division
 from __future__ import print_function
 
 from datetime import datetime
-from sync_replicas_optimizer_summarized import SyncReplicasOptimizerSummarized,SyncReplicasOptimizerSummarizedOld
+from sync_replicas_optimizer_summarized import SyncReplicasOptimizerSummarizedOld
 import os.path
 import time
 
