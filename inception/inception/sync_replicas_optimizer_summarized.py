@@ -334,7 +334,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         with ops.control_dependencies([update_op]):
           # Sync_op needs to insert tokens to the token queue at the end of the
           # step so the replicas can fetch them to start the next step.
-          tokens = logging_ops.Print(array_ops.fill([self._tokens_per_step], global_step.ref(), [token], message="Update operation applied on PS"))
+          tokens = logging_ops.Print(array_ops.fill([self._tokens_per_step], global_step.ref(), [token]), message="Update operation applied on PS")
           sync_op = sync_token_queue.enqueue_many((tokens,))
 
         # Print out the time that the PS enqueues tokens
