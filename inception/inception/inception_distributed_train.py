@@ -259,6 +259,7 @@ def train(target, dataset, cluster_spec):
                                summary_op=None,
                                global_step=global_step,
                                saver=saver,
+                               ready_for_local_init_op=ready_for_local_init_op,
                                save_model_secs=FLAGS.save_interval_secs)
 
       tf.logging.info('%s Supervisor' % datetime.now())
@@ -300,7 +301,6 @@ def train(target, dataset, cluster_spec):
           # Log the elapsed time per iteration
           finish_time = time.time()
           tf.logging.info("Worker iteration %d elapsed time: %f sec" % (step, finish_time-start_time))
-
 
           # Create the Timeline object, and write it to a json
           if FLAGS.timeline_logging:
