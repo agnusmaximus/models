@@ -20,8 +20,16 @@ for ip in ${ips[@]}; do
     # Terminate python
     ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip} "bash -s" <<EOF
 pkill python
+cd models/inception
+echo ${index}
+cat timeline_iter\=* > combined_timeline_${index}
+tar -czf combined_timeline.tar.gz combined_timeline_${index}
 EOF
     # Collect the outputs
-    scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip}:~/models/inception/out* ${outfile_location}
+    scp -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip}:~/models/inception/combined_timeline.tar.gz ${outfile_location}/combined_timeline${index}.tar.gz
+    cd ${outfile_location}
+    tar -xzf combined_timeline${index}.tar.gz
+    rm -f combined_timeline${index}.tar.gz
+    cd ..
     index=$((index+1))
 done

@@ -7,14 +7,14 @@
 # Usage: sh run_distributed.sh [machine_tier] [n_instances]
 
 region="us-west-2" # Spot
-availability_zone="us-west-2a" # Spot
+availability_zone="us-west-2c" # Spot
 #region="us-west-1" # On demand
 #availability_zone="us-west-1a" # On demand
 
 #image_id=ami-326b2352 # For us-west-1
 image_id=ami-7a24fe1a # For us-west-2
 
-spot_price=.09
+spot_price=.2
 default_machine_tier='m4.2xlarge'
 machine_tier=${1:-$default_machine_tier}
 default_n_instances=5

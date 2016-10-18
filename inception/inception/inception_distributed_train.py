@@ -299,7 +299,6 @@ def train(target, dataset, cluster_spec):
 
           # Log the elapsed time per iteration
           finish_time = time.time()
-          tf.logging.info("Worker iteration %d elapsed time: %f sec" % (step, finish_time-start_time))
 
           # Create the Timeline object, and write it to a json
           if FLAGS.timeline_logging:

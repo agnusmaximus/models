@@ -55,6 +55,7 @@ for ip in ${ips[@]}; do
 pkill python
 cd models
 cd inception
+rm -f timeline*
 rm -f out*
 git fetch && git reset --hard origin/master
 rm -rf /tmp/imagenet_train
