@@ -262,7 +262,10 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         collections=[ops.GraphKeys.LOCAL_VARIABLES],
         name="sync_rep_local_step",
         dtype=tf.int64)
+
     self.local_step_init_op = state_ops.assign(self._local_step, global_step)
+    self.local_step_init_op = logging_ops.Print(self.local_step_init_op, [self._local_step], message="Acquired token and will begin pulling updated variables + computing gradients.")
+
     chief_init_ops = [self.local_step_init_op]
     self.ready_for_local_init_op = variables.report_uninitialized_variables(
         variables.all_variables())
@@ -355,6 +358,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
                   global_step, name="SetGlobalStep"))
       self.chief_init_op = control_flow_ops.group(*(chief_init_ops))
       self._gradients_applied = True
+
       return train_op
 
   def get_chief_queue_runner(self):
