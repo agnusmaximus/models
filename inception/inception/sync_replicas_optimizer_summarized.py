@@ -325,7 +325,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         # Replicas have to wait until they can get a token from the token queue.
         with ops.control_dependencies(train_ops):
           token = sync_token_queue.dequeue()
-          token = logging_ops.Print(token, [token])
+          token = logging_ops.Print(token, [token], message="Dequeuing token")
         train_op = state_ops.assign(self._local_step, token)
 
         with ops.control_dependencies([update_op]):
@@ -333,6 +333,13 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
           # step so the replicas can fetch them to start the next step.
           tokens = array_ops.fill([self._tokens_per_step], global_step.ref())
           sync_op = sync_token_queue.enqueue_many((tokens,))
+
+        # Print out the time that the PS enqueues tokens
+        with ops.control_dependencies([sync_op]):
+          print_sync_op = logging_ops.Print(tokens, [tokens], message="Enqueueing tokens")
+
+        # Replace sync op with print_sync_op so that print_sync_op is executed
+        sync_op = print_sync_op
 
         if self._variable_averages is not None:
           with ops.control_dependencies([sync_op]), ops.name_scope(""):
