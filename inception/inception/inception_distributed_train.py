@@ -232,7 +232,6 @@ def train(target, dataset, cluster_spec):
 
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')
-        train_op = logging_ops.Print(train_op, [train_op], message="Applied gradient")
 
       # Get chief queue_runners, init_tokens and clean_up_op, which is used to
       # synchronize replicas.
@@ -297,6 +296,11 @@ def train(target, dataset, cluster_spec):
             loss_value, step = sess.run([train_op, global_step])
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
+
+          # Log the elapsed time per iteration
+          finish_time = time.time()
+          tf.logging.info("Worker iteration %d elapsed time: %f sec" % (step, finish_time-start_time))
+
 
           # Create the Timeline object, and write it to a json
           if FLAGS.timeline_logging:
