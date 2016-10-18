@@ -232,7 +232,7 @@ def train(target, dataset, cluster_spec):
 
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')
-        train_op = logging_op.Print(train_op, [train_op], message="Applied gradient")
+        train_op = logging_ops.Print(train_op, [train_op], message="Applied gradient")
 
       # Get chief queue_runners, init_tokens and clean_up_op, which is used to
       # synchronize replicas.
