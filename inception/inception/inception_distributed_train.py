@@ -259,7 +259,7 @@ def train(target, dataset, cluster_spec):
                                summary_op=None,
                                global_step=global_step,
                                saver=saver,
-                               ready_for_local_init_op=ready_for_local_init_op,
+                               ready_for_local_init_op=opt.ready_for_local_init_op,
                                save_model_secs=FLAGS.save_interval_secs)
 
       tf.logging.info('%s Supervisor' % datetime.now())
