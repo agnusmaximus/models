@@ -264,7 +264,6 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         dtype=tf.int64)
 
     self.local_step_init_op = state_ops.assign(self._local_step, global_step)
-    self.local_step_init_op = logging_ops.Print(self.local_step_init_op, [self._local_step], message="Acquired token and will begin pulling updated variables + computing gradients.")
 
     chief_init_ops = [self.local_step_init_op]
     self.ready_for_local_init_op = variables.report_uninitialized_variables(
@@ -334,7 +333,7 @@ class SyncReplicasOptimizerSummarized(optimizer.Optimizer):
         with ops.control_dependencies([update_op]):
           # Sync_op needs to insert tokens to the token queue at the end of the
           # step so the replicas can fetch them to start the next step.
-          tokens = logging_ops.Print(array_ops.fill([self._tokens_per_step], global_step.ref()), [token], message="Update operation applied on PS")
+          tokens = array_ops.fill([self._tokens_per_step], global_step.ref())
           sync_op = sync_token_queue.enqueue_many((tokens,))
 
         # Print out the time that the PS enqueues tokens
