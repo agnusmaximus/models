@@ -36,6 +36,7 @@ from tensorflow.python.client import timeline
 
 FLAGS = tf.app.flags.FLAGS
 
+tf.app.flags.DEFINE_boolean('should_summarize', False, 'Whether Chief should write summaries.')
 tf.app.flags.DEFINE_boolean('timeline_logging', True, 'Whether to log timeline of events.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
@@ -328,7 +329,8 @@ def train(target, dataset, cluster_spec):
                              examples_per_sec, duration))
 
           # Determine if the summary_op should be run on the chief worker.
-          if is_chief and next_summary_time < time.time():
+          if is_chief and next_summary_time < time.time() and FLAGS.should_summarize:
+
             tf.logging.info('Running Summary operation on the chief.')
             summary_str = sess.run(summary_op)
             sv.summary_computed(sess, summary_str)
