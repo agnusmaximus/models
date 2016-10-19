@@ -55,10 +55,12 @@ for ip in ${ips[@]}; do
 pkill python
 cd models
 cd inception
-rm -f timeline*
-rm -f out*
 git fetch && git reset --hard origin/master
 rm -rf /tmp/imagenet_train
+rm -rf timelines*
+rm -rf timeline*
+rm -f out*
+mkdir timelines
 ${tf_command[$index]} > out${index} 2>&1 &
 EOF
     index=$((index+1))

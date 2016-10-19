@@ -14,7 +14,7 @@ availability_zone="us-west-2c" # Spot
 #image_id=ami-326b2352 # For us-west-1
 image_id=ami-7a24fe1a # For us-west-2
 
-spot_price=.2
+spot_price=.1
 default_machine_tier='m4.2xlarge'
 machine_tier=${1:-$default_machine_tier}
 default_n_instances=5
