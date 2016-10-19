@@ -198,7 +198,7 @@ def train(target, dataset, cluster_spec):
         tf.histogram_summary(var.op.name, var)
 
       # Create synchronous replica optimizer.
-      opt = SyncReplicasOptimizerSummarizedOld(
+      opt = tf.train.SyncReplicasOptimizerOld(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         replica_id=FLAGS.task_id,
