@@ -207,7 +207,7 @@ def train(target, dataset, cluster_spec):
         variables_to_average=variables_to_average)"""
 
       # Use V2 optimizer
-      opt = tf.train.SyncReplicasOptimizerV2(
+      opt = SyncReplicasOptimizerV2(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
