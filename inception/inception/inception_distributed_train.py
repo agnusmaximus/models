@@ -240,7 +240,7 @@ def train(target, dataset, cluster_spec):
       # More details can be found in sync_replicas_optimizer.
       chief_queue_runners = [opt.get_chief_queue_runner()]
       init_tokens_op = opt.get_init_tokens_op()
-      clean_up_op = opt.get_clean_up_op()
+      #clean_up_op = opt.get_clean_up_op()
 
       # Create a saver.
       saver = tf.train.Saver()
@@ -339,7 +339,7 @@ def train(target, dataset, cluster_spec):
         except:
           if is_chief:
             tf.logging.info('About to execute sync_clean_up_op!')
-            sess.run(clean_up_op)
+            #sess.run(clean_up_op)
           raise
 
       if is_chief:
