@@ -21,7 +21,6 @@ from __future__ import division
 from __future__ import print_function
 
 from datetime import datetime
-from sync_replicas_optimizer_summarized import SyncReplicasOptimizerSummarizedOld
 import os.path
 import time
 
@@ -207,7 +206,7 @@ def train(target, dataset, cluster_spec):
         variables_to_average=variables_to_average)"""
 
       # Use V2 optimizer
-      opt = SyncReplicasOptimizerSummarizedV2(
+      opt = tf.train.SyncReplicasOptimizerSummarizedV2(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
