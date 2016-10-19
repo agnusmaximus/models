@@ -198,19 +198,21 @@ def train(target, dataset, cluster_spec):
         tf.histogram_summary(var.op.name, var)
 
       # Create synchronous replica optimizer.
-      opt = tf.train.SyncReplicasOptimizer(
+      """opt = tf.train.SyncReplicasOptimizer(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         replica_id=FLAGS.task_id,
         total_num_replicas=num_workers,
         variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)
-      """opt = SyncReplicasOptimizerSummarized(
+        variables_to_average=variables_to_average)"""
+
+      # Use V2 optimizer
+      opt = SyncReplicasOptimizerSummarizedV2(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
         variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)"""
+        variables_to_average=variables_to_average)
 
 
       batchnorm_updates = tf.get_collection(slim.ops.UPDATE_OPS_COLLECTION)
@@ -253,7 +255,14 @@ def train(target, dataset, cluster_spec):
       # passing in None for summary_op to avoid a summary_thread being started.
       # Running summaries and training operations in parallel could run out of
       # GPU memory.
+      if is_chief:
+        local_init_op = opt.chief_init_op
+      else:
+        local_init_op = opt.local_step_init_op
+      ready_for_local_init_op = opt.ready_for_local_init_op
       sv = tf.train.Supervisor(is_chief=is_chief,
+                               local_init_op=local_init_op,
+                               ready_for_local_init_op=ready_for_local_init_op,
                                logdir=FLAGS.train_dir,
                                init_op=init_op,
                                summary_op=None,
