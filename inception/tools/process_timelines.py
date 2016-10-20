@@ -70,6 +70,21 @@ def create_runtime_histogram_per_iter(dequeue_times):
         plt.title(title)
         plt.savefig(work_dir + title + ".png")
 
+def create_runtime_histogram_per_worker(dequeue_times):
+    iterations = dequeue_times.keys()
+    workers = dequeue_times.itervalues().next().keys()
+    for worker in workers:
+        gradient_compute_times = [dequeue_times[x][worker][0] for x in iterations]
+        mean, mini, maxi, stdev, perc_99 = mean_min_max_stdev(gradient_compute_times)
+        print("Worker: %d, mean: %fs, min: %fs, max: %fs, perc_99: %fs, stdev: %f" % (worker, mean, mini, maxi, perc_99, stdev))
+        plt.cla()
+        plt.hist(gradient_compute_times, bins=100)
+        plt.xlabel("Time(s)")
+        plt.ylabel("Count")
+        title = "Worker_%d" % worker
+        plt.title(title)
+        plt.savefig(work_dir + title + ".png")
+
 def create_total_histogram(dequeue_times):
     all_times = []
     for iteration in dequeue_times.keys():
@@ -88,7 +103,7 @@ def create_total_histogram(dequeue_times):
 def n_workers_with_time_gt(val, times):
     return sum([1 if x > val else 0 for x in times])
 
-def create_empirical_distribution(dequeue_times):
+def create_empirical_distribution_over_iters(dequeue_times):
     # Note: We average over iterations.
     all_times = []
     for iteration in dequeue_times.keys():
@@ -106,7 +121,39 @@ def create_empirical_distribution(dequeue_times):
     # Average over iterations
     n_iters = float(len(dequeue_times))
     pr_t_values = [x/n_iters for x in pr_t_values]
-    title = "Empirical_Runtime_Distribution"
+    title = "Empirical_Runtime_Distribution_Avg_Over_Iters"
+    plt.cla()
+    plt.title(title)
+    plt.yscale("log", log=10)
+    plt.xlabel("Compute latency (s)")
+    plt.ylabel("P(T > t)")
+    plt.plot(compute_latency_values, pr_t_values, label="Naive")
+    plt.legend(loc="upper right")
+    plt.savefig(work_dir+ title + ".png")
+
+def create_empirical_distribution_over_workers(dequeue_times):
+    # Note: We average over workers.
+    all_times = []
+    for iteration in dequeue_times.keys():
+        gradient_compute_times = [dequeue_times[iteration][worker][0] for worker in dequeue_times[iteration].keys()]
+        all_times += gradient_compute_times
+    min_compute_latency, max_compute_latency = min(all_times), max(all_times)
+    compute_latency_values = list(np.arange(min_compute_latency-1, max_compute_latency+1))
+    pr_t_values = [0] * len(compute_latency_values)
+    iterations = dequeue_times.keys()
+    workers = dequeue_times.itervalues().next().keys()
+    for worker in workers:
+        gradient_compute_times = [dequeue_times[x][worker][0] for x in iterations]
+        print(gradient_compute_times)
+        for i, val in enumerate(compute_latency_values):
+            n_iters = float(len(iterations))
+            pr_t_values[i] += n_workers_with_time_gt(val, gradient_compute_times) / n_iters
+
+    # Average over workers
+    n_workers = float(len(workers))
+    pr_t_values = [x/n_workers for x in pr_t_values]
+    title = "Empirical_Runtime_Distribution_Avg_Over_Workers"
+    plt.cla()
     plt.title(title)
     plt.yscale("log", log=10)
     plt.xlabel("Compute latency (s)")
@@ -142,6 +189,8 @@ if __name__ == "__main__":
         f_cached_dequeue.close()
 
     # Create histograms of runtimes for all timelines and all iterations
-    create_empirical_distribution(dequeue_times)
+    create_empirical_distribution_over_workers(dequeue_times)
+    create_empirical_distribution_over_iters(dequeue_times)
+    create_runtime_histogram_per_worker(dequeue_times)
     create_total_histogram(dequeue_times)
     create_runtime_histogram_per_iter(dequeue_times)
