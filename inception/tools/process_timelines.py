@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import os
 import glob
 import numpy as np
 import pickle
@@ -10,6 +11,9 @@ import re
 import numpy as np
 import ujson as json
 
+work_dir = "process_timelines_workdir/"
+if not os.path.exists(work_dir):
+    os.makedirs(work_dir)
 worker_iter_finder = re.compile("worker=([0-9]+)_timeline_iter=([0-9]+)")
 
 def add_to_dequeue_times(dq_start_time, dq_end_time, fname, dequeue_times):
@@ -58,6 +62,58 @@ def create_runtime_histogram_per_iter(dequeue_times):
         dequeue_end_time =  [dequeue_times[iteration][worker][1] for worker in dequeue_times[iteration].keys()]
         mean, mini, maxi, stdev, perc_99 = mean_min_max_stdev(gradient_compute_times)
         print("Iteration: %d, mean: %fs, min: %fs, max: %fs, perc_99: %fs, stdev: %f, max_dequeue_end_time: %fs" % (iteration, mean, mini, maxi, perc_99, stdev, max(dequeue_end_time)))
+        plt.cla()
+        plt.hist(gradient_compute_times, bins=100)
+        plt.xlabel("Time(s)")
+        plt.ylabel("Count")
+        title = "Iteration_%d" % iteration
+        plt.title(title)
+        plt.savefig(work_dir + title + ".png")
+
+def create_total_histogram(dequeue_times):
+    all_times = []
+    for iteration in dequeue_times.keys():
+        gradient_compute_times = [dequeue_times[iteration][worker][0] for worker in dequeue_times[iteration].keys()]
+        all_times += gradient_compute_times
+    mean, mini, maxi, stdev, perc_99 = mean_min_max_stdev(all_times)
+    print("Total, mean: %fs, min: %fs, max: %fs, perc_99: %fs, stdev: %f" % (mean, mini, maxi, perc_99, stdev))
+    plt.cla()
+    plt.hist(all_times, bins=100)
+    plt.xlabel("Time(s)")
+    plt.ylabel("Count")
+    title = "All Iterations"
+    plt.title(title)
+    plt.savefig(work_dir + title + ".png")
+
+def n_workers_with_time_gt(val, times):
+    return sum([1 if x > val else 0 for x in times])
+
+def create_empirical_distribution(dequeue_times):
+    # Note: We average over iterations.
+    all_times = []
+    for iteration in dequeue_times.keys():
+        gradient_compute_times = [dequeue_times[iteration][worker][0] for worker in dequeue_times[iteration].keys()]
+        all_times += gradient_compute_times
+    min_compute_latency, max_compute_latency = min(all_times), max(all_times)
+    compute_latency_values = list(np.arange(min_compute_latency-1, max_compute_latency+1))
+    pr_t_values = [0] * len(compute_latency_values)
+    for iteration in dequeue_times.keys():
+        gradient_compute_times = [dequeue_times[iteration][worker][0] for worker in dequeue_times[iteration].keys()]
+        for i, val in enumerate(compute_latency_values):
+            n_workers = float(len(dequeue_times[iteration]))
+            pr_t_values[i] += n_workers_with_time_gt(val, gradient_compute_times) / n_workers
+
+    # Average over iterations
+    n_iters = float(len(dequeue_times))
+    pr_t_values = [x/n_iters for x in pr_t_values]
+    title = "Empirical_Runtime_Distribution"
+    plt.title(title)
+    plt.yscale("log", log=10)
+    plt.xlabel("Compute latency (s)")
+    plt.ylabel("P(T > t)")
+    plt.plot(compute_latency_values, pr_t_values, label="Naive")
+    plt.legend(loc="upper right")
+    plt.savefig(work_dir+ title + ".png")
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -77,13 +133,15 @@ if __name__ == "__main__":
             print(filename)
             process_timeline(filename, dequeue_times)
 
-        f_cached_dequeue = open("cached_dequeue_times.json", "w")
+        f_cached_dequeue = open(work_dir + "cached_dequeue_times.json", "w")
         pickle.dump(dequeue_times, f_cached_dequeue)
         f_cached_dequeue.close()
     else:
-        f_cached_dequeue = open("cached_dequeue_times.json", "r")
+        f_cached_dequeue = open(work_dir + "cached_dequeue_times.json", "r")
         dequeue_times = pickle.load(f_cached_dequeue)
         f_cached_dequeue.close()
 
     # Create histograms of runtimes for all timelines and all iterations
+    create_empirical_distribution(dequeue_times)
+    create_total_histogram(dequeue_times)
     create_runtime_histogram_per_iter(dequeue_times)
