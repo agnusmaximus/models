@@ -13,11 +13,10 @@ n_hosts=${#ips[@]}
 start=0
 echo "Running machines: ${ips_string}"
 
-index=0
 for ip in ${ips[@]}; do
     echo $ip
 
-    # Terminate python
+    # Terminate python and zip the timelines
     ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip} "bash -s" <<EOF
 pkill python
 cd models/inception
@@ -31,5 +30,4 @@ EOF
     rm -f timelines.tar.gz
     rm -rf timelines
     cd ..
-    index=$((index+1))
 done

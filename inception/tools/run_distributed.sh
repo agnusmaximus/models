@@ -46,6 +46,12 @@ for ((i=0; i<n_hosts; i++)); do
     tf_command[$i]="./bazel-bin/inception/imagenet_distributed_train --batch_size=${batch_size} --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='${worker_hosts}' --ps_hosts='${ps_hosts}' --task_id=${worker_id} --job_name='${node_type}'"
 done
 
+for ip in ${ips[@]}; do
+    ssh -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null -i ${key_location} ubuntu@${ip} "bash -s" <<EOF
+pkill python
+EOF
+done
+
 # Loop through, ssh, and run command. Indentation messed up... :(
 index=0
 for ip in ${ips[@]}; do
