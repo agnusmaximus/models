@@ -36,7 +36,7 @@ from tensorflow.python.client import timeline
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_boolean('should_summarize', False, 'Whether Chief should write summaries.')
+tf.app.flags.DEFINE_boolean('should_summarize', True, 'Whether Chief should write summaries.')
 tf.app.flags.DEFINE_boolean('timeline_logging', True, 'Whether to log timeline of events.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
@@ -68,7 +68,7 @@ tf.app.flags.DEFINE_integer('num_replicas_to_aggregate', -1,
                             """updating the parameters.""")
 tf.app.flags.DEFINE_integer('save_interval_secs', 10 * 60,
                             'Save interval seconds.')
-tf.app.flags.DEFINE_integer('save_summaries_secs', 180,
+tf.app.flags.DEFINE_integer('save_summaries_secs', 300,
                             'Save summaries interval seconds.')
 
 # **IMPORTANT**
