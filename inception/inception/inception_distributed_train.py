@@ -255,11 +255,12 @@ def train(target, dataset, cluster_spec):
       # short circuit from the gradient computations.
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
-          short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) for y in  operation.outputs]
-          normal_op = lambda : operation.outputs
-          operation = tf.cond(sync_token_queue.size() > 0,
-                              short_circuit_op,
-                              normal_op)
+          if len(operation.outputs) > 0:
+            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) for y in  operation.outputs]
+            normal_op = lambda : operation.outputs
+            operation = tf.cond(sync_token_queue.size() > 0,
+                                short_circuit_op,
+                                normal_op)
 
       # Build an initialization operation to run below.
       init_op = tf.initialize_all_variables()
