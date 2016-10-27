@@ -251,6 +251,12 @@ def train(target, dataset, cluster_spec):
       # Build the summary operation based on the TF collection of Summaries.
       summary_op = tf.merge_all_summaries()
 
+      # Modify the graph so that stragglers try to detect they are stragglers and
+      # short circuit from the gradient computations.
+      for operation in inception_train_graph.get_operations():
+        if "gradients/" in operation.node_def.name:
+          operation = tf.cond(sync_token_queue.size() > 0, lambda : 0, lambda : operation)
+
       # Build an initialization operation to run below.
       init_op = tf.initialize_all_variables()
 
@@ -275,12 +281,6 @@ def train(target, dataset, cluster_spec):
 
 
       tf.logging.info('%s Supervisor' % datetime.now())
-
-      # Modify the graph so that stragglers try to detect they are stragglers and
-      # short circuit from the gradient computations.
-      for operation in inception_train_graph.get_operations():
-        if "gradients/" in operation.node_def.name:
-          operation = tf.cond(sync_token_queue.size() > 0, lambda : 0, lambda : operation)
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
