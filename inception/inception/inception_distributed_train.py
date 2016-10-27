@@ -261,7 +261,7 @@ def train(target, dataset, cluster_spec):
           #  operation = tf.cond(sync_token_queue.size() > 0,
           #                      short_circuit_op,
           #                      normal_op)
-          prev_outputs = operations.outputs
+          prev_outputs = operation.outputs
           operation.outputs = tf.cond(sync_token_queue.size() > 0,
                                       lambda: [tf.zeros(tf.shape(y), dtype=y.dtype) for y in  operation.outputs],
                                       lambda: prev_outputs)
