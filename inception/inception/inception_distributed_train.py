@@ -210,7 +210,7 @@ def train(target, dataset, cluster_spec):
         variables_to_average=variables_to_average)"""
 
       # Use V2 optimizer
-      opt, sync_token_queue = SyncReplicasOptimizerV2(
+      opt = SyncReplicasOptimizerV2(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
@@ -233,7 +233,7 @@ def train(target, dataset, cluster_spec):
         if grad is not None:
           tf.histogram_summary(var.op.name + '/gradients', grad)
 
-      apply_gradients_op = opt.apply_gradients(grads, global_step=global_step)
+      apply_gradients_op, sync_token_queue = opt.apply_gradients(grads, global_step=global_step)
 
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')
