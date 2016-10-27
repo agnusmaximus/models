@@ -257,7 +257,7 @@ def train(target, dataset, cluster_spec):
         if "gradients/" in operation.node_def.name:
           short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) for y in  operation.outputs]
           operation = tf.cond(sync_token_queue.size() > 0,
-                              lambda : short_circuit_op
+                              short_circuit_op,
                               operation)
 
       # Build an initialization operation to run below.
