@@ -276,7 +276,7 @@ def train(target, dataset, cluster_spec):
 
       tf.logging.info('%s Supervisor' % datetime.now())
       tf.logging.info("YO")
-      tf.logging.info(inception_train_graph.get_operations())
+      tf.logging.info([x.node_def.name for x in inception_train_graph.get_operations()])
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
