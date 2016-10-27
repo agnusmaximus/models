@@ -21,7 +21,6 @@ from __future__ import division
 from __future__ import print_function
 
 from datetime import datetime
-from sync_replicas_optimizer_modified import SyncReplicasOptimizerV2
 import os.path
 import time
 
@@ -31,13 +30,9 @@ import tensorflow as tf
 from inception import image_processing
 from inception import inception_model as inception
 from inception.slim import slim
-from tensorflow.python.ops import logging_ops
-from tensorflow.python.client import timeline
 
 FLAGS = tf.app.flags.FLAGS
 
-tf.app.flags.DEFINE_boolean('should_summarize', True, 'Whether Chief should write summaries.')
-tf.app.flags.DEFINE_boolean('timeline_logging', True, 'Whether to log timeline of events.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
@@ -51,7 +46,7 @@ tf.app.flags.DEFINE_string('worker_hosts', '',
 tf.app.flags.DEFINE_string('train_dir', '/tmp/imagenet_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 100, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('max_steps', 1000000, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('subset', 'train', 'Either "train" or "validation".')
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             'Whether to log device placement.')
@@ -68,7 +63,7 @@ tf.app.flags.DEFINE_integer('num_replicas_to_aggregate', -1,
                             """updating the parameters.""")
 tf.app.flags.DEFINE_integer('save_interval_secs', 10 * 60,
                             'Save interval seconds.')
-tf.app.flags.DEFINE_integer('save_summaries_secs', 300,
+tf.app.flags.DEFINE_integer('save_summaries_secs', 180,
                             'Save summaries interval seconds.')
 
 # **IMPORTANT**
@@ -93,8 +88,6 @@ RMSPROP_EPSILON = 1.0              # Epsilon term for RMSProp.
 
 
 def train(target, dataset, cluster_spec):
-  inception_train_graph = tf.get_default_graph()
-
   """Train Inception on a dataset for a number of steps."""
   # Number of workers and parameter servers are infered from the workers and ps
   # hosts string.
@@ -201,22 +194,13 @@ def train(target, dataset, cluster_spec):
         tf.histogram_summary(var.op.name, var)
 
       # Create synchronous replica optimizer.
-      """opt = tf.train.SyncReplicasOptimizer(
-        opt,
-        replicas_to_aggregate=num_replicas_to_aggregate,
-        replica_id=FLAGS.task_id,
-        total_num_replicas=num_workers,
-        variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)"""
-
-      # Use V2 optimizer
-      opt = SyncReplicasOptimizerV2(
-        opt,
-        replicas_to_aggregate=num_replicas_to_aggregate,
-        total_num_replicas=num_workers,
-        variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)
-
+      opt = tf.train.SyncReplicasOptimizer(
+          opt,
+          replicas_to_aggregate=num_replicas_to_aggregate,
+          replica_id=FLAGS.task_id,
+          total_num_replicas=num_workers,
+          variable_averages=exp_moving_averager,
+          variables_to_average=variables_to_average)
 
       batchnorm_updates = tf.get_collection(slim.ops.UPDATE_OPS_COLLECTION)
       assert batchnorm_updates, 'Batchnorm updates are missing'
@@ -243,7 +227,7 @@ def train(target, dataset, cluster_spec):
       # More details can be found in sync_replicas_optimizer.
       chief_queue_runners = [opt.get_chief_queue_runner()]
       init_tokens_op = opt.get_init_tokens_op()
-      #clean_up_op = opt.get_clean_up_op()
+      clean_up_op = opt.get_clean_up_op()
 
       # Create a saver.
       saver = tf.train.Saver()
@@ -258,14 +242,7 @@ def train(target, dataset, cluster_spec):
       # passing in None for summary_op to avoid a summary_thread being started.
       # Running summaries and training operations in parallel could run out of
       # GPU memory.
-      if is_chief:
-        local_init_op = opt.chief_init_op
-      else:
-        local_init_op = opt.local_step_init_op
-      ready_for_local_init_op = opt.ready_for_local_init_op
       sv = tf.train.Supervisor(is_chief=is_chief,
-                               local_init_op=local_init_op,
-                               ready_for_local_init_op=ready_for_local_init_op,
                                logdir=FLAGS.train_dir,
                                init_op=init_op,
                                summary_op=None,
@@ -273,14 +250,7 @@ def train(target, dataset, cluster_spec):
                                saver=saver,
                                save_model_secs=FLAGS.save_interval_secs)
 
-
       tf.logging.info('%s Supervisor' % datetime.now())
-      node_names = [x.node_def.name for x in inception_train_graph.get_operations()]
-      k = 0
-      for node_name in node_names:
-        if "gradients/" in node_name:
-          k += 1
-      print("YOOOO : %d", k)
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
@@ -303,43 +273,25 @@ def train(target, dataset, cluster_spec):
       # specified interval. Note that the summary_op and train_op never run
       # simultaneously in order to prevent running out of GPU memory.
       next_summary_time = time.time() + FLAGS.save_summaries_secs
-      begin_time = time.time()
       while not sv.should_stop():
         try:
           start_time = time.time()
-          if FLAGS.timeline_logging:
-            run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
-            run_metadata = tf.RunMetadata()
-            loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
-          else:
-            loss_value, step = sess.run([train_op, global_step])
-
+          loss_value, step = sess.run([train_op, global_step])
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
-
-          # Log the elapsed time per iteration
-          finish_time = time.time()
-
-          # Create the Timeline object, and write it to a json
-          if FLAGS.timeline_logging:
-            tl = timeline.Timeline(run_metadata.step_stats)
-            ctf = tl.generate_chrome_trace_format()
-            with open('timelines/worker=%d_timeline_iter=%d.json' % (FLAGS.task_id, step), 'w') as f:
-              f.write(ctf)
-
           if step > FLAGS.max_steps:
             break
-
           duration = time.time() - start_time
-          examples_per_sec = FLAGS.batch_size / float(duration)
-          format_str = ('Worker %d: %s: step %d, loss = %.2f'
-                        '(%.1f examples/sec; %.3f  sec/batch)')
-          tf.logging.info(format_str %
-                          (FLAGS.task_id, datetime.now(), step, loss_value,
+
+          if step % 30 == 0:
+            examples_per_sec = FLAGS.batch_size / float(duration)
+            format_str = ('Worker %d: %s: step %d, loss = %.2f'
+                          '(%.1f examples/sec; %.3f  sec/batch)')
+            tf.logging.info(format_str %
+                            (FLAGS.task_id, datetime.now(), step, loss_value,
                              examples_per_sec, duration))
 
           # Determine if the summary_op should be run on the chief worker.
-          if is_chief and next_summary_time < time.time() and FLAGS.should_summarize:
-
+          if is_chief and next_summary_time < time.time():
             tf.logging.info('Running Summary operation on the chief.')
             summary_str = sess.run(summary_op)
             sv.summary_computed(sess, summary_str)
@@ -350,11 +302,8 @@ def train(target, dataset, cluster_spec):
         except:
           if is_chief:
             tf.logging.info('About to execute sync_clean_up_op!')
-            #sess.run(clean_up_op)
+            sess.run(clean_up_op)
           raise
-
-      if is_chief:
-        tf.logging.info('Elapsed Time: %f' % (time.time()-begin_time))
 
       # Stop the supervisor.  This also waits for service threads to finish.
       sv.stop()
