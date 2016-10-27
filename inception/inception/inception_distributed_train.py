@@ -93,6 +93,8 @@ RMSPROP_EPSILON = 1.0              # Epsilon term for RMSProp.
 
 
 def train(target, dataset, cluster_spec):
+  inception_train_graph = tf.get_default_graph()
+
   """Train Inception on a dataset for a number of steps."""
   # Number of workers and parameter servers are infered from the workers and ps
   # hosts string.
@@ -271,7 +273,10 @@ def train(target, dataset, cluster_spec):
                                saver=saver,
                                save_model_secs=FLAGS.save_interval_secs)
 
+
       tf.logging.info('%s Supervisor' % datetime.now())
+      print("YO")
+      print(inception_train_graph)
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
