@@ -280,7 +280,7 @@ def train(target, dataset, cluster_spec):
       for node_name in node_names:
         if "gradients/" in node_name:
           k += 1
-      print("YOOOO : %d", k)
+      tf.logging.info("YOOOO : %d", k)
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
