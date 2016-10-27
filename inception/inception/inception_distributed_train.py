@@ -255,7 +255,7 @@ def train(target, dataset, cluster_spec):
       # short circuit from the gradient computations.
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
-          operation = tf.cond(sync_token_queue.size() > 0, lambda : 0, lambda : operation)
+          operation = tf.cond(sync_token_queue.size() > 0, lambda : tf.constant(0), lambda : operation)
 
       # Build an initialization operation to run below.
       init_op = tf.initialize_all_variables()
