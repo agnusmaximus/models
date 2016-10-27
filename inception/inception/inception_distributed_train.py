@@ -210,7 +210,7 @@ def train(target, dataset, cluster_spec):
         variables_to_average=variables_to_average)"""
 
       # Use V2 optimizer
-      opt = SyncReplicasOptimizerV2(
+      opt, sync_token_queue = SyncReplicasOptimizerV2(
         opt,
         replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
@@ -275,12 +275,12 @@ def train(target, dataset, cluster_spec):
 
 
       tf.logging.info('%s Supervisor' % datetime.now())
-      node_names = [x.node_def.name for x in inception_train_graph.get_operations()]
-      k = 0
-      for node_name in node_names:
-        if "gradients/" in node_name:
-          k += 1
-      tf.logging.info("YOOOO : %d", k)
+
+      # Modify the graph so that stragglers try to detect they are stragglers and
+      # short circuit from the gradient computations.
+      for operation in inception_train_graph.get_operations():
+        if "gradients/" in operation.node_def.name:
+          operation = tf.cond(sync_token_queue.size() > 0, lambda : 0, lambda : operation)
 
       sess_config = tf.ConfigProto(
           allow_soft_placement=True,
