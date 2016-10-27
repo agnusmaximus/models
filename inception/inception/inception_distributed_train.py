@@ -261,6 +261,7 @@ def train(target, dataset, cluster_spec):
             operation = tf.cond(sync_token_queue.size() > 0,
                                 short_circuit_op,
                                 normal_op)
+      tf.logging.info("Injected short circuiting...")
 
       # Build an initialization operation to run below.
       init_op = tf.initialize_all_variables()
