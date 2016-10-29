@@ -282,6 +282,7 @@ def train(target, dataset, cluster_spec):
                                        normal_op)
 
           print(cond_short_circuit)
+          print(cond_short_circuit.op)
           print([x for x in cond_short_circuit.op.outputs])
           print([x for x in cond_short_circuit.op.inputs])
           print([x for x in operation.outputs])
