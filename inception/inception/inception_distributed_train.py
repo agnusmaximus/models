@@ -278,6 +278,8 @@ def train(target, dataset, cluster_spec):
                                          short_circuit_op,
                                          normal_op)
 
+            tf.logging.info("YO: ")
+            tf.logging.info(cond_short_circuit.__class__)
             short_circuit_sgv = ge.SubGraphView(cond_short_circuit, passthrough_ts=operation.inputs)
             reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
             #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
