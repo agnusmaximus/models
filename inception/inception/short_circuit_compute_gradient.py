@@ -37,5 +37,4 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
     if gate_gradients == optimizer.Optimizer.GATE_GRAPH:
         grads = control_flow_ops.tuple(grads)
     grads_and_vars = list(zip(grads, var_list))
-    self._assert_valid_dtypes([v for g, v in grads_and_vars if g is not None])
     return grads_and_vars
