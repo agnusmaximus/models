@@ -270,41 +270,19 @@ def train(target, dataset, cluster_spec):
       count = 0
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
-          if len(operation.outputs) != 0:
-            name = "cond_short_circuit_%d" % count
-            short_circuit_ts = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
-                                         logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
+
+          # 1. Create the conditional wrapper
+          short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
+                                       logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                                          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
-                                         for index, y in enumerate(operation.outputs)]
-            normal_ts = lambda : operation.outputs
-            is_straggler = math_ops.less(0, tf.identity(sync_token_queue.size()))
-            cond_short_circuit = control_flow_ops.cond(is_straggler,
-                                                       short_circuit_ts,
-                                                       normal_ts, name=name)
-            cond_ops = [x for x in inception_train_graph.get_operations() if name in x.name]
+                                       for index, y in enumerate(operation.outputs)]
+          normal_op = lambda : operation.outputs
+          cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
+                                       short_circuit_op,
+                                       normal_op, name=name)
 
-            #short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
-            short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
-
-            print([x for x in short_circuit_sgv.inputs])
-            print([x for x in operation.inputs])
-            ge.reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
-            count += 1
-            #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
-
-            """# 1. Create the conditional wrapper
-            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
-            logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
-            [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
-            for index, y in enumerate(operation.outputs)]
-            normal_op = lambda : operation.outputs
-            cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
-            short_circuit_op,
-            normal_op)
-
-
-            # 2. Reroute
-            reroute.reroute_b2a_outputs(cond_short_circuit, operation)"""
+          # 2. Reroute
+          reroute.reroute_b2a_outputs(cond_short_circuit.op, operation)
 
       tf.logging.info("Injected short circuiting...")
 
