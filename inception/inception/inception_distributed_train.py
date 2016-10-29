@@ -276,6 +276,8 @@ def train(target, dataset, cluster_spec):
                                                          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
                                          for index, y in enumerate(operation.outputs)]
             normal_ts = lambda : operation.outputs
+            tf.logging.info("YOOOO:")
+            tf.logging.info(sync_token_Queue.size().__class__)
             is_straggler = math_ops.less(0, sync_token_queue.size())
             cond_short_circuit = control_flow_ops.cond(is_straggler,
                                                             short_circuit_ts,
