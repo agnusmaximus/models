@@ -278,7 +278,8 @@ def train(target, dataset, cluster_spec):
                                          short_circuit_op,
                                          normal_op)
 
-            short_circuit_sgv = ge.SubGraphView(cond_short_circuit, passthrough_ts=operation.inputs)
+            #short_circuit_sgv = ge.SubGraphView(cond_short_circuit, passthrough_ts=operation.inputs)
+            short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
 
             """# 1. Create the conditional wrapper
             short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
