@@ -547,8 +547,8 @@ def gradients_short_circuited(ys,
                       [x for x in in_grads if x is not None]) > 1:
                     in_grads = control_flow_ops.tuple(in_grads)
                 _LogOpGradients(op, out_grads, in_grads)
-            tf.logging.info("In grad function %d" % len(in_grads))
             in_grads = [x for x in in_grads if x is not None]
+            tf.logging.info("In grad function %d" % len(in_grads))
             return in_grads
 
         # If none gradient, no need to do anything
