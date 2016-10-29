@@ -39,7 +39,9 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
                                                      gate_gradients=optimizer.Optimizer.GATE_OP,
                                                      aggregation_method=None,
                                                      colocate_gradients_with_ops=False,
+                                                     sync_token_queue=None
                                                      grad_loss=None):
+    assert sync_token_queue is not None
     if gate_gradients not in [optimizer.Optimizer.GATE_NONE, optimizer.Optimizer.GATE_OP,
                               optimizer.Optimizer.GATE_GRAPH]:
         raise ValueError("gate_gradients must be one of: Optimizer.GATE_NONE, "
@@ -56,11 +58,12 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
     if not var_list:
       raise ValueError("No variables to optimize")
     var_refs = [v.ref() for v in var_list]
-    grads = gradients.gradients(
+    grads = gradients.gradients_short_circuited(
         loss, var_refs, grad_ys=grad_loss,
         gate_gradients=(gate_gradients == optimizer.Optimizer.GATE_OP),
         aggregation_method=aggregation_method,
-        colocate_gradients_with_ops=colocate_gradients_with_ops)
+        colocate_gradients_with_ops=colocate_gradients_with_ops,
+        sync_token_queue=sync_token_queue)
     if gate_gradients == optimizer.Optimizer.GATE_GRAPH:
         grads = control_flow_ops.tuple(grads)
     grads_and_vars = list(zip(grads, var_list))

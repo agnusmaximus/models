@@ -160,6 +160,7 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
                variable_averages=None,
                variables_to_average=None,
                use_locking=False,
+               global_step=None
                name="sync_replicas"):
     """Construct a sync_replicas optimizer.
 
@@ -196,7 +197,7 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     self._variables_to_average = variables_to_average
     self._total_num_replicas = total_num_replicas
     self._tokens_per_step = max(total_num_replicas, replicas_to_aggregate)
-    self._global_step = None
+    self._global_step = global_step
     self._sync_token_queue = None
 
     # The synchronization op will be executed in a queue runner which should
@@ -207,6 +208,14 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     # the accumulator to be global step. This list contains list of the
     # following format: (accumulator, device).
     self._accumulator_list = []
+
+    assert global_step is not None
+    sync_token_queue = (
+        data_flow_ops.FIFOQueue(-1,
+                                global_step.dtype.base_dtype,
+                                shapes=(),
+                                shared_name="sync_token_q"))
+    self._sync_token_queue = sync_token_queue
 
   def compute_gradients(self, *args, **kwargs):
     """Compute gradients of "loss" for the variables in "var_list".
@@ -224,6 +233,7 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     Returns:
       A list of (gradient, variable) pairs.
     """
+    kwargs["sync_token_queue"] = self._sync_token_queue
     return short_circuit_compute_gradient.compute_gradients_with_injected_short_circuiting(*args, **kwargs)
     #return self._opt.compute_gradients(*args, **kwargs)
 
@@ -310,12 +320,13 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
 
       # Create token queue.
       with ops.device(global_step.device), ops.name_scope(""):
-        sync_token_queue = (
-            data_flow_ops.FIFOQueue(-1,
-                                    global_step.dtype.base_dtype,
-                                    shapes=(),
-                                    shared_name="sync_token_q"))
-        self._sync_token_queue = sync_token_queue
+        #sync_token_queue = (
+        #    data_flow_ops.FIFOQueue(-1,
+        #                            global_step.dtype.base_dtype,
+        #                            shapes=(),
+        #                            shared_name="sync_token_q"))
+        #self._sync_token_queue = sync_token_queue
+        sync_token_queue = self._sync_token_queue
 
         # dummy_queue is passed to the queue runner. Don't use the real queues
         # because the queue runner doesn't automatically reopen it once it
@@ -355,7 +366,7 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
       self._gradients_applied = True
 
       # Also return the sync token queue.
-      return train_op, self._sync_token_queue
+      return train_op
 
   def get_chief_queue_runner(self):
     """Returns the QueueRunner for the chief to execute.

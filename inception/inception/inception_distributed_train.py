@@ -214,7 +214,8 @@ def train(target, dataset, cluster_spec):
         replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
         variable_averages=exp_moving_averager,
-        variables_to_average=variables_to_average)
+        variables_to_average=variables_to_average,
+        global_step=global_step)
 
 
       batchnorm_updates = tf.get_collection(slim.ops.UPDATE_OPS_COLLECTION)
@@ -232,7 +233,7 @@ def train(target, dataset, cluster_spec):
         if grad is not None:
           tf.histogram_summary(var.op.name + '/gradients', grad)
 
-      apply_gradients_op, sync_token_queue = opt.apply_gradients(grads, global_step=global_step)
+      apply_gradients_op = opt.apply_gradients(grads, global_step=global_step)
 
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')

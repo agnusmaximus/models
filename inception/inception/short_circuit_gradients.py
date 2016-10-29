@@ -304,13 +304,14 @@ def _maybe_colocate_with(op, colocate_gradients_with_ops):
     yield
 
 
-def gradients(ys,
-              xs,
-              grad_ys=None,
-              name="gradients",
-              colocate_gradients_with_ops=False,
-              gate_gradients=False,
-              aggregation_method=None):
+def gradients_short_circuited(ys,
+                              xs,
+                              grad_ys=None,
+                              name="gradients",
+                              colocate_gradients_with_ops=False,
+                              gate_gradients=False,
+                              aggregation_method=None,
+                              sync_token_queue=None):
   """Constructs symbolic partial derivatives of sum of `ys` w.r.t. x in `xs`.
 
   `ys` and `xs` are each a `Tensor` or a list of tensors.  `grad_ys`
@@ -353,6 +354,7 @@ def gradients(ys,
     ValueError: if the arguments are invalid.
 
   """
+  assert sync_token_queue is not None
   ys = _AsList(ys)
   xs = _AsList(xs)
   if grad_ys is None:
