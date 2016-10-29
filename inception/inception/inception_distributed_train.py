@@ -277,7 +277,7 @@ def train(target, dataset, cluster_spec):
                                          for index, y in enumerate(operation.outputs)]
             normal_ts = lambda : operation.outputs
             is_straggler = math_ops.less(0, sync_token_queue.size())
-            cond_short_circuit = control_flow_ops.cond.cond(is_straggler,
+            cond_short_circuit = control_flow_ops.cond(is_straggler,
                                                             short_circuit_ts,
                                                             normal_ts)
 
