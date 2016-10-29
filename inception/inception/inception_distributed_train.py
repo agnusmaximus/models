@@ -279,7 +279,7 @@ def train(target, dataset, cluster_spec):
           normal_op = lambda : operation.outputs
           cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
                                        short_circuit_op,
-                                       normal_op, name=name)
+                                       normal_op)
 
           # 2. Reroute
           reroute.reroute_b2a_outputs(cond_short_circuit.op, operation)
