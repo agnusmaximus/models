@@ -517,7 +517,14 @@ def gradients_short_circuited(ys,
                     except ValueError:
                         op_type = op.type
 
-                    shape_func = ops._default_shape_function_registry.lookup(op_type)
+                    try:
+                        shape_func = ops._shape_registry.lookup(op_type)
+                    except LookupError:
+                        try:
+                            shape_func = ops._default_shape_function_registry.lookup(op_type)
+                        except LookupError:
+                            raise RuntimeError("No shape function registered for standard op: %s"
+                                               % op.type)
                     shapes = shape_func(op)
                     tf.logging.info(shapes)
 
@@ -567,6 +574,7 @@ def gradients_short_circuited(ys,
                       [x for x in in_grads if x is not None]) > 1:
                     in_grads = control_flow_ops.tuple(in_grads)
                 _LogOpGradients(op, out_grads, in_grads)
+            tf.logging.info(op)
             tf.logging.info("In grad function %d" % len(in_grads))
             return in_grads
 
