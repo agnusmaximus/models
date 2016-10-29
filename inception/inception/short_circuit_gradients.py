@@ -558,6 +558,7 @@ def gradients_short_circuited(ys,
                     # If grad_fn was found, do not use SymbolicGradient even for
                     # functions.
                     in_grads = _AsList(grad_fn(op, *out_grads))
+                    print(len(in_grads))
                   else:
                     # For function call ops, we add a 'SymbolicGradient'
                     # node to the graph to compute gradients.
