@@ -273,7 +273,7 @@ def train(target, dataset, cluster_spec):
                                          logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                                            [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
                                          for index, y in enumerate(operation.outputs)]
-            #normal_op = lambda : operation.outputs
+            normal_op = lambda : operation.outputs
             cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
                                          short_circuit_op,
                                          normal_op)
