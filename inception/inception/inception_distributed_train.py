@@ -283,6 +283,7 @@ def train(target, dataset, cluster_spec):
 
           print(cond_short_circuit)
           print([x for x in cond_short_circuit.op.outputs])
+          print([x for x in cond_short_circuit.op.inputs])
           print([x for x in operation.outputs])
 
           # 2. Reroute
