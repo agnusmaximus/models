@@ -512,6 +512,7 @@ def gradients_short_circuited(ys,
                 # pylint: disable=protected-access
                 with ops.get_default_graph()._original_op(op):
                     if grad_fn:
+                        tf.logging.info("GRAD FN")
                         for index, output in enumerate(op.outputs):
                             zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype)
                             if index == 0:
@@ -538,6 +539,7 @@ def gradients_short_circuited(ys,
                 with ops.get_default_graph()._original_op(op):
                   # pylint: enable=protected-access
                   if grad_fn:
+                    tf.logging.info("GRAD FN")
                     # If grad_fn was found, do not use SymbolicGradient even for
                     # functions.
                     in_grads = _AsList(grad_fn(op, *out_grads))
