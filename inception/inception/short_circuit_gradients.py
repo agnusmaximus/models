@@ -511,6 +511,24 @@ def gradients_short_circuited(ys,
             with ops.name_scope(op.name + "_grad"):
                 # pylint: disable=protected-access
                 with ops.get_default_graph()._original_op(op):
+
+                    try:
+                        op_type = op.get_attr("_gradient_op_type")
+                    except ValueError:
+                        op_type = op.type
+
+                    try:
+                        shape_func = ops._shape_registry.lookup(op_type)
+                    except LookupError:
+                        try:
+                            shape_func = ops._default_shape_function_registry.lookup(op_type)
+                        except LookupError:
+                            raise RuntimeError("No shape function registered for standard op: %s"
+                                               % op.type)
+                    shapes = shape_func(op, *out_grads)
+                    tf.logging.info(shapes)
+
+
                     if grad_fn:
                         for index, output in enumerate(op.outputs):
                             zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype)
@@ -529,22 +547,6 @@ def gradients_short_circuited(ys,
 
             tf.logging.info("zero grad function %d" % len(zero_grads))
 
-            try:
-                op_type = op.get_attr("_gradient_op_type")
-            except ValueError:
-                op_type = op.type
-
-            try:
-                shape_func = ops._shape_registry.lookup(op_type)
-            except LookupError:
-                try:
-                    shape_func = ops._default_shape_function_registry.lookup(op_type)
-                except LookupError:
-                    raise RuntimeError("No shape function registered for standard op: %s"
-                                       % op.type)
-            shapes = shape_func(op)
-
-            tf.logging.info(shapes)
             return zero_grads
 
         # Original gradient computation function in a wrapper
@@ -558,7 +560,6 @@ def gradients_short_circuited(ys,
                     # If grad_fn was found, do not use SymbolicGradient even for
                     # functions.
                     in_grads = _AsList(grad_fn(op, *out_grads))
-                    tf.logging.info("YOOO %d" % len(in_grads))
                   else:
                     # For function call ops, we add a 'SymbolicGradient'
                     # node to the graph to compute gradients.
