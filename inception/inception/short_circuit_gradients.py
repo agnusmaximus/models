@@ -534,6 +534,7 @@ def gradients_short_circuited(ys,
                     # functions.
                     in_grads = _AsList(grad_fn(op, *out_grads))
                   else:
+                    tf.logging.info("SYMBOLIC YO")
                     # For function call ops, we add a 'SymbolicGradient'
                     # node to the graph to compute gradients.
                     f_in = [x for x in op.inputs] + out_grads
@@ -547,7 +548,6 @@ def gradients_short_circuited(ys,
                       [x for x in in_grads if x is not None]) > 1:
                     in_grads = control_flow_ops.tuple(in_grads)
                 _LogOpGradients(op, out_grads, in_grads)
-            tf.logging.info(op)
             tf.logging.info("In grad function %d" % len(in_grads))
             return in_grads
 
