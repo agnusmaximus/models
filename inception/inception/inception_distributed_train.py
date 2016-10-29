@@ -267,26 +267,23 @@ def train(target, dataset, cluster_spec):
       #    operations' output. Otherwise it returns the original operation's output.
       # 2. Reroute the inputs of the "gradient" namespace operation to that of the newly
       #    created conditional wrapper operation from 1.
+      count = 0
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
           if len(operation.outputs) != 0:
-
+            name = "cond_short_circuit_%d" % count
             short_circuit_ts = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
                                          logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                                          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
                                          for index, y in enumerate(operation.outputs)]
             normal_ts = lambda : operation.outputs
-            tf.logging.info("YOOOO:")
-            #is_straggler = math_ops.less(0, tf.identity(sync_token_queue.size()))
-            is_straggler = math_ops.less(0, tf.Variable(10))
-            tf.logging.info(is_straggler.__class__)
+            is_straggler = math_ops.less(0, tf.identity(sync_token_queue.size()))
             cond_short_circuit = control_flow_ops.cond(is_straggler,
-                                                            short_circuit_ts,
-                                                            normal_ts)
+                                                       short_circuit_ts,
+                                                       normal_ts, name=name)
+            count += 1
 
-            tf.logging.info("YO: ")
-            tf.logging.info(cond_short_circuit.__class__)
-            short_circuit_sgv = ge.SubGraphView(cond_short_circuit, passthrough_ts=operation.inputs)
+            short_circuit_sgv = ge.SubGraphView(tf.Graph.get_operation_by_name(name), passthrough_ts=operation.inputs)
             reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
             #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
 
