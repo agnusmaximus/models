@@ -282,10 +282,10 @@ def train(target, dataset, cluster_spec):
                                                        short_circuit_ts,
                                                        normal_ts, name=name)
             cond_ops = [x for x in inception_train_graph.get_operations() if name in x.name]
-            count += 1
 
             short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
-            reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
+            ge.reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
+            count += 1
             #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
 
             """# 1. Create the conditional wrapper
