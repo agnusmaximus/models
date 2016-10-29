@@ -517,14 +517,7 @@ def gradients_short_circuited(ys,
                     except ValueError:
                         op_type = op.type
 
-                    try:
-                        shape_func = ops._shape_registry.lookup(op_type)
-                    except LookupError:
-                        try:
-                            shape_func = ops._default_shape_function_registry.lookup(op_type)
-                        except LookupError:
-                            raise RuntimeError("No shape function registered for standard op: %s"
-                                               % op.type)
+                    shape_func = ops._default_shape_function_registry.lookup(op_type)
                     shapes = shape_func(op)
                     tf.logging.info(shapes)
 
