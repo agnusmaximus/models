@@ -518,8 +518,6 @@ def gradients_short_circuited(ys,
                             zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
                         zero_grads.append(zero_grad)
 
-            tf.logging.info("zero grad function %d" % len(zero_grads))
-
             return zero_grads
 
         # Original gradient computation function in a wrapper
@@ -548,7 +546,6 @@ def gradients_short_circuited(ys,
                     in_grads = control_flow_ops.tuple(in_grads)
                 _LogOpGradients(op, out_grads, in_grads)
             in_grads = [x if x is not None else tf.zeros(tf.shape(op.inputs[i]), dtype=op.inputs[i].dtype) for i, x in enumerate(in_grads)]
-            tf.logging.info("In grad function %d" % len(in_grads))
             return in_grads
 
         # If none gradient, no need to do anything
@@ -559,7 +556,8 @@ def gradients_short_circuited(ys,
             if type(in_grads) == tf.Tensor:
                 in_grads = [in_grads]
             for t_in, in_grad in zip(op.inputs, in_grads):
-                # We need to check if in_grad is not the special None Tensor
+                # There are no none values, since in the second portion of the code,
+                # they are set to 0 tensors.
                 if isinstance(in_grad, ops.Tensor):
                     in_grad.set_shape(t_in.get_shape())
                 _SetGrad(grads, t_in, in_grad)
