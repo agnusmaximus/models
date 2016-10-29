@@ -282,7 +282,7 @@ def train(target, dataset, cluster_spec):
                                        normal_op)
 
           # 2. Reroute
-          reroute.reroute_b2a_outputs(cond_short_circuit.op, operation)
+          ge.reroute.reroute_b2a_outputs(cond_short_circuit.op, operation)
 
       tf.logging.info("Injected short circuiting...")
 
