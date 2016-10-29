@@ -513,7 +513,7 @@ def gradients_short_circuited(ys,
                 if index == 0:
                     zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
                 zero_grads.append(zero_grad)
-            tf.logging.info("zero grad function ", len(zero_grads))
+            tf.logging.info("zero grad function %d" % len(zero_grads))
             return zero_grads
 
         # Original gradient computation function in a wrapper
@@ -541,7 +541,7 @@ def gradients_short_circuited(ys,
                       [x for x in in_grads if x is not None]) > 1:
                     in_grads = control_flow_ops.tuple(in_grads)
                 _LogOpGradients(op, out_grads, in_grads)
-            tf.logging.info("In grad function ", len(in_grads))
+            tf.logging.info("In grad function %d" % len(in_grads))
             return in_grads
 
         # If none gradient, no need to do anything
