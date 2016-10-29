@@ -483,7 +483,7 @@ def gradients_short_circuited(ys,
               if gate_gradients and len(
                   [x for x in in_grads if x is not None]) > 1:
                 in_grads = control_flow_ops.tuple(in_grads)
-          _LogOpGradients(op, out_grads, in_grads_short_circuited)
+          _LogOpGradients(op, out_grads, in_grads)
         else:
           # If no grad_fn is defined or none of out_grads is available,
           # just propagates a list of None backwards.
