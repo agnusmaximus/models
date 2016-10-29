@@ -33,6 +33,7 @@ from inception import inception_model as inception
 from inception.slim import slim
 from tensorflow.python.ops import logging_ops
 from tensorflow.python.client import timeline
+from tensorflow.contrib.graph_editor import reroute
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -253,14 +254,33 @@ def train(target, dataset, cluster_spec):
 
       # Modify the graph so that stragglers try to detect they are stragglers and
       # short circuit from the gradient computations.
+
+      # Modify the graph so that stragglers try to detect they are stragglers and
+      # short circuit from the gradient computations.
+      #
+      # We will do this via the contrib/graph_editor api, where the steps are
+      # 1. For every "gradient" namespace operation we create a conditional operation
+      #    that checks whether the sync_token_queue is empty. If it is not empty, it
+      #    short circuits, returning a 0 tensor of the same dimension as the original
+      #    operations' output. Otherwise it returns the original operation's output.
+      # 2. Reroute the inputs of the "gradient" namespace operation to that of the newly
+      #    created conditional wrapper operation from 1.
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
           if len(operation.outputs) > 0:
-            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype), [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!") for index, y in enumerate(operation.outputs)]
+            # 1. Create the conditional wrapper
+            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
+                                         logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
+                                                           [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
+                                         for index, y in enumerate(operation.outputs)]
             normal_op = lambda : operation.outputs
-            operation = tf.cond(sync_token_queue.size() > 0,
-                                short_circuit_op,
-                                normal_op)
+            short_circuit_op = tf.cond(sync_token_queue.size() <= 0,
+                                       short_circuit_op,
+                                       normal_op)
+
+
+            # 2. Reroute
+            reroute.reroute_b2a_inputs(short_circuit_op, operation)
       tf.logging.info("Injected short circuiting...")
 
       # Build an initialization operation to run below.
