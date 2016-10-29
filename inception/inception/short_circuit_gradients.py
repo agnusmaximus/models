@@ -497,7 +497,7 @@ def gradients_short_circuited(ys,
               # Short circuiting
               zero_grad = tf.zeros(tf.shape(in_grad), dtype=in_grad.dtype)
               zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
-              short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
+              short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0 or sync_token_queue.size() <= 0,
                                                        lambda: zero_grad,
                                                        lambda: in_grad)
               in_grad = short_circuit_op
