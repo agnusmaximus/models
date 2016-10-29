@@ -267,9 +267,7 @@ def train(target, dataset, cluster_spec):
       #    created conditional wrapper operation from 1.
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
-          if len(operation.outputs) > 0:
-            with ge.make_sgv(operation) as sgv:
-              ge.detach_outputs(sgv)
+          ge.detach_outputs(operation)
 
 
             """# 1. Create the conditional wrapper
