@@ -532,7 +532,8 @@ def gradients_short_circuited(ys,
                 op_type = op.get_attr("_gradient_op_type")
             except ValueError:
                 op_type = op.type
-            tf.logging.info("YOOO: %d" % ops._shape_registry.lookup(op_type))
+
+            tf.logging.info(ops._shape_registry.lookup(op_type))
             return zero_grads
 
         # Original gradient computation function in a wrapper
