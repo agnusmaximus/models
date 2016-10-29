@@ -271,7 +271,7 @@ def train(target, dataset, cluster_spec):
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
 
-          """# 1. Create the conditional wrapper
+          # 1. Create the conditional wrapper
           short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
                                        logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                                          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
@@ -290,8 +290,7 @@ def train(target, dataset, cluster_spec):
           cond_short_circuit_sgv.remap_inputs([0])
 
           # 2. Reroute
-          ge.reroute.reroute_b2a_outputs(cond_short_circuit_sgv, operation)"""
-          ge.edit.detach(operation)
+          ge.reroute.swap_outputs(cond_short_circuit_sgv, operation)
 
       tf.logging.info("Injected short circuiting...")
 
