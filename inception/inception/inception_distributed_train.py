@@ -283,7 +283,8 @@ def train(target, dataset, cluster_spec):
                                                        normal_ts, name=name)
             cond_ops = [x for x in inception_train_graph.get_operations() if name in x.name]
 
-            short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
+            #short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
+            short_circuit_sgv = tf.identity(tf.Variable(.8), name=name)
             print([x for x in short_circuit_sgv.inputs])
             print([x for x in operation.inputs])
             ge.reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
