@@ -272,11 +272,13 @@ def train(target, dataset, cluster_spec):
         if "gradients/" in operation.node_def.name:
 
           # 1. Create the conditional wrapper
-          short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
-                                       logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
-                                                         [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
-                                       for index, y in enumerate(operation.outputs)]
-          normal_op = lambda : operation.outputs
+          #short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
+          #logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
+          #                                               [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
+          #                             for index, y in enumerate(operation.outputs)]
+          #normal_op = lambda : operation.outputs
+          short_circuit_op = lambda: tf.Variable(.5)
+          normal_op = lambda: tf.Variable(.6)
           cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
                                        short_circuit_op,
                                        normal_op)
