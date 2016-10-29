@@ -278,7 +278,7 @@ def train(target, dataset, cluster_spec):
             normal_ts = lambda : operation.outputs
             tf.logging.info("YOOOO:")
             #is_straggler = math_ops.less(0, tf.identity(sync_token_queue.size()))
-            is_straggler = math_ops.less(0, tf.Variable(.8))
+            is_straggler = math_ops.less(0, tf.Variable(10))
             tf.logging.info(is_straggler.__class__)
             cond_short_circuit = control_flow_ops.cond(is_straggler,
                                                             short_circuit_ts,
