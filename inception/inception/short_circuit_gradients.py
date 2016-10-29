@@ -508,12 +508,13 @@ def gradients_short_circuited(ys,
         # Make sure dimension and datatypes match those of op.outputs
         def zero_grad_function():
             zero_grads = []
-            for index, output in enumerate([x for x in op.inputs] + out_grads):
+            for index, output in enumerate(op.outputs):
                 zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype)
                 if index == 0:
                     zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
                 zero_grads.append(zero_grad)
             tf.logging.info("zero grad function %d" % len(zero_grads))
+            tf.logging.info("YOOOO %d" % len(out_grads))
             return zero_grads
 
         # Original gradient computation function in a wrapper
