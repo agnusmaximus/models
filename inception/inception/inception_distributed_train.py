@@ -281,6 +281,9 @@ def train(target, dataset, cluster_spec):
                                        short_circuit_op,
                                        normal_op)
 
+          print([x for x in cond_short_circuit.op.outputs])
+          print([x for x in operation.outputs])
+
           # 2. Reroute
           ge.reroute.reroute_b2a_outputs(cond_short_circuit.op, operation)
 
