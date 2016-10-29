@@ -486,11 +486,7 @@ def gradients_short_circuited(ys,
 
           # Short circuit if sync_token_queue is not empty
           for index, in_grad in enumerate(in_grads):
-              #zero_grad = [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
-                           #logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
-                                             #[tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
-                           #for index, y in enumerate(in_grad)]
-              zero_grad = tf.zeros(tf.shape(in_grad), dtype=tfin_grad.dtype)
+              zero_grad = tf.zeros(tf.shape(in_grad), dtype=in_grad.dtype)
               zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler, piping up zeros")
               short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
                                                        lambda: zero_grad,
