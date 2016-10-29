@@ -281,10 +281,10 @@ def train(target, dataset, cluster_spec):
             cond_short_circuit = control_flow_ops.cond(is_straggler,
                                                        short_circuit_ts,
                                                        normal_ts, name=name)
-            print(cond_short_circuit.name)
+            cond_ops = [x for x in inception_train_graph.get_operations() if name in x]
             count += 1
 
-            short_circuit_sgv = ge.SubGraphView(inception_train_graph.get_operation_by_name(name), passthrough_ts=operation.inputs)
+            short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
             reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
             #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
 
