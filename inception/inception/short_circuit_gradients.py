@@ -509,7 +509,7 @@ def gradients_short_circuited(ys,
         def zero_grad_function():
             zero_grads = []
             for index, output in enumerate(op.outputs):
-                zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype))
+                zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype)
                 if index == 0:
                     zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
                 zero_grads.append(zero_grad)
@@ -545,8 +545,8 @@ def gradients_short_circuited(ys,
         # If none gradient, no need to do anything
         if not none_gradient:
             in_grads = tf.cond(sync_token_queue.size() > 0,
-                              zero_grad_function,
-                              in_grad_function)
+                               zero_grad_function,
+                               in_grad_function)
             for t_in, in_grad in zip(op.inputs, in_grads):
                 if isinstance(in_grad, ops.Tensor):
                     in_grad.set_shape(t_in.get_shape())
