@@ -12,7 +12,7 @@ from tensorflow.python.ops import variables
 from tensorflow.python.training import slot_creator
 import short_circuit_gradients as gradients
 
-def valid_dtypes():
+def get_valid_dtypes():
     """Valid types for loss, variables and gradients.
     Subclasses should override to allow other float types.
     Returns:
@@ -27,7 +27,7 @@ def assert_valid_dtypes(tensors):
     Raises:
       ValueError: If any tensor is not a valid type.
     """
-    valid_dtypes = valid_dtypes()
+    valid_dtypes = get_valid_dtypes()
     for t in tensors:
       dtype = t.dtype.base_dtype
       if dtype not in valid_dtypes:
