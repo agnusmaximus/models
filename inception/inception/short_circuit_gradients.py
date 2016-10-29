@@ -27,6 +27,7 @@ import six
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
 import tensorflow as tf
+from tensorflow.python.ops import logging_ops
 from tensorflow.python.framework import constant_op
 from tensorflow.python.framework import dtypes
 from tensorflow.python.framework import ops
@@ -495,6 +496,7 @@ def gradients_short_circuited(ys,
 
               # Short circuiting
               zero_grad = tf.zeros(tf.shape(in_grad), dtype=in_grad.dtype)
+              zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
               short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
                                                        lambda: zero_grad,
                                                        lambda: in_grad)
