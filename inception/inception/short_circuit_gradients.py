@@ -450,6 +450,11 @@ def gradients_short_circuited(ys,
                   (op.name, op.type))
         if loop_state:
           loop_state.EnterGradWhileContext(op, before=False)
+
+#####################################################################
+
+        none_gradient = False
+
         if (grad_fn or is_func_call) and has_out_grads:
           # NOTE: If _AggregatedGrads didn't compute a value for the i'th
           # output, it means that the cost does not depend on output[i],
@@ -463,6 +468,9 @@ def gradients_short_circuited(ys,
                 out_grads[i] = loop_state.ZerosLike(op, i)
               else:
                 out_grads[i] = control_flow_ops.ZerosLikeOutsideLoop(op, i)
+
+          # Pull this whole portion into the lambda
+          """
           with ops.name_scope(op.name + "_grad"):
             # pylint: disable=protected-access
             with ops.get_default_graph()._original_op(op):
@@ -485,23 +493,67 @@ def gradients_short_circuited(ys,
                   [x for x in in_grads if x is not None]) > 1:
                 in_grads = control_flow_ops.tuple(in_grads)
           _LogOpGradients(op, out_grads, in_grads)
+          """
         else:
           # If no grad_fn is defined or none of out_grads is available,
           # just propagates a list of None backwards.
-          in_grads = [None] * len(op.inputs)
-        for t_in, in_grad in zip(op.inputs, in_grads):
-          if in_grad is not None:
-            if isinstance(in_grad, ops.Tensor):
-              in_grad.set_shape(t_in.get_shape())
+          # Pull this portion into the lambda for short circuiting
+          # in_grads = [None] * len(op.inputs)
+          none_gradient = True
 
-              # Short circuiting
-              zero_grad = tf.zeros(tf.shape(in_grad), dtype=in_grad.dtype)
-              short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
-                                                       lambda: logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros."),
-                                                       lambda: in_grad)
-              in_grad = short_circuit_op
+        # Short circuiting implementation
+        # -----------------------------------
 
-            _SetGrad(grads, t_in, in_grad)
+        # Short circuiting return zero function.
+        # Make sure dimension and datatypes match those of op.outputs
+        def zero_grad_function():
+            zero_grads = []
+            for index, output in enumerate(op.outputs):
+                zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype))
+                if index == 0:
+                    zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
+                zero_grads.append(zero_grad)
+            return zero_grads
+
+        # Original gradient computation function in a wrapper
+        # Assume none_gradient = False
+        def in_grad_function():
+            with ops.name_scope(op.name + "_grad"):
+                # pylint: disable=protected-access
+                with ops.get_default_graph()._original_op(op):
+                  # pylint: enable=protected-access
+                  if grad_fn:
+                    # If grad_fn was found, do not use SymbolicGradient even for
+                    # functions.
+                    in_grads = _AsList(grad_fn(op, *out_grads))
+                  else:
+                    # For function call ops, we add a 'SymbolicGradient'
+                    # node to the graph to compute gradients.
+                    f_in = [x for x in op.inputs] + out_grads
+                    f_types = [x.dtype for x in op.inputs]
+                    # pylint: disable=protected-access
+                    in_grads = _AsList(functional_ops._symbolic_gradient(
+                        f_in, f_types, op.type))
+                    # pylint: enable=protected-access
+                  _VerifyGeneratedGradients(in_grads, op)
+                  if gate_gradients and len(
+                      [x for x in in_grads if x is not None]) > 1:
+                    in_grads = control_flow_ops.tuple(in_grads)
+              _LogOpGradients(op, out_grads, in_grads)
+              return in_grads
+
+        # If none gradient, no need to do anything
+        if not none_gradient:
+            in_grads = tf.cond(sync_token_queue.size() > 0,
+                              zero_grad_function,
+                              in_grad_function)
+            for t_in, in_grad in zip(op.inputs, in_grads):
+                if isinstance(in_grad, ops.Tensor):
+                    in_grad.set_shape(t_in.get_shape())
+                _SetGrad(grads, t_in, in_grad)
+
+###########################################################################
+
         if loop_state:
           loop_state.ExitGradWhileContext(op, before=False)
 
