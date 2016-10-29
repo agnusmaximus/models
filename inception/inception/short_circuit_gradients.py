@@ -512,22 +512,7 @@ def gradients_short_circuited(ys,
                 # pylint: disable=protected-access
                 with ops.get_default_graph()._original_op(op):
 
-                    try:
-                        op_type = op.get_attr("_gradient_op_type")
-                    except ValueError:
-                        op_type = op.type
-
-                    try:
-                        shape_func = ops._shape_registry.lookup(op_type)
-                    except LookupError:
-                        try:
-                            shape_func = ops._default_shape_function_registry.lookup(op_type)
-                        except LookupError:
-                            raise RuntimeError("No shape function registered for standard op: %s"
-                                               % op.type)
-                    shapes = shape_func(op)
-                    tf.logging.info(shapes)
-
+                    tf.logging.info(len(op.inputs))
 
                     if grad_fn:
                         for index, output in enumerate(op.outputs):
