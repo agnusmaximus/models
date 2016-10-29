@@ -280,8 +280,8 @@ def train(target, dataset, cluster_spec):
 
 
             # 2. Reroute
-            reroute.reroute_b2a_inputs(cond_short_circuit, operation)
-            #reroute.reroute_b2a_inputs(short_circuit_op, operation)
+            reroute.reroute_b2a_outputs(cond_short_circuit, operation)
+
       tf.logging.info("Injected short circuiting...")
 
       # Build an initialization operation to run below.
