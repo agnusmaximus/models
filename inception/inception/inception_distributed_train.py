@@ -274,11 +274,11 @@ def train(target, dataset, cluster_spec):
                                                          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
                                          for index, y in enumerate(operation.outputs)]
             normal_op = lambda : operation.outputs
-            cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
+            cond_short_circuit = tf.cond(sync_token_queue.size() > 0,
                                          short_circuit_op,
                                          normal_op)
 
-            short_circuit_sgv = ge.SubGraphView(tf.mul(tf.Variable(.8), tf.Variable(.4)), passthrough_ts=operation.inputs)
+            short_circuit_sgv = ge.SubGraphView(cond_short_circuit, passthrough_ts=operation.inputs)
             reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
             #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
 
