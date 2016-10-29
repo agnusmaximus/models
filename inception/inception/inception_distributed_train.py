@@ -268,7 +268,9 @@ def train(target, dataset, cluster_spec):
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
           if len(operation.outputs) > 0:
-            ge.edit.detach_outputs(operation)
+            with ge.make_sgv(operation) as sgv:
+              ge.detach_outputs(sgv)
+
 
             """# 1. Create the conditional wrapper
             short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
