@@ -483,17 +483,6 @@ def gradients_short_circuited(ys,
               if gate_gradients and len(
                   [x for x in in_grads if x is not None]) > 1:
                 in_grads = control_flow_ops.tuple(in_grads)
-
-          # Short circuit if sync_token_queue is not empty
-          in_grads_short_circuited = []
-          for index, in_grad in enumerate(in_grads):
-              zero_grad = tf.zeros(tf.shape(in_grad), dtype=in_grad.dtype)
-              zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler, piping up zeros")
-              short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
-                                                       lambda: zero_grad,
-                                                       lambda: in_grad)
-              in_grads_short_circuited.append(short_circuit_op)
-
           _LogOpGradients(op, out_grads, in_grads_short_circuited)
         else:
           # If no grad_fn is defined or none of out_grads is available,
@@ -503,6 +492,14 @@ def gradients_short_circuited(ys,
           if in_grad is not None:
             if isinstance(in_grad, ops.Tensor):
               in_grad.set_shape(t_in.get_shape())
+
+              # Short circuiting
+              zero_grad = tf.zeros(tf.shape(in_grad), dtype=in_grad.dtype)
+              short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
+                                                       lambda: zero_grad,
+                                                       lambda: in_grad)
+              in_grad = short_circuit_op
+
             _SetGrad(grads, t_in, in_grad)
         if loop_state:
           loop_state.ExitGradWhileContext(op, before=False)
