@@ -210,12 +210,13 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     self._accumulator_list = []
 
     assert global_step is not None
-    sync_token_queue = (
+    with ops.device(global_step.device), ops.name_scope(""):
+      sync_token_queue = (
         data_flow_ops.FIFOQueue(-1,
                                 global_step.dtype.base_dtype,
                                 shapes=(),
                                 shared_name="sync_token_q"))
-    self._sync_token_queue = sync_token_queue
+      self._sync_token_queue = sync_token_queue
 
   def compute_gradients(self, *args, **kwargs):
     """Compute gradients of "loss" for the variables in "var_list".
@@ -320,13 +321,13 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
 
       # Create token queue.
       with ops.device(global_step.device), ops.name_scope(""):
-        sync_token_queue = (
-            data_flow_ops.FIFOQueue(-1,
-                                    global_step.dtype.base_dtype,
-                                    shapes=(),
-                                    shared_name="sync_token_q"))
-        self._sync_token_queue = sync_token_queue
-        #sync_token_queue = self._sync_token_queue
+        #sync_token_queue = (
+        #    data_flow_ops.FIFOQueue(-1,
+        #                            global_step.dtype.base_dtype,
+        #                            shapes=(),
+        #                            shared_name="sync_token_q"))
+        #self._sync_token_queue = sync_token_queue
+        sync_token_queue = self._sync_token_queue
 
         # dummy_queue is passed to the queue runner. Don't use the real queues
         # because the queue runner doesn't automatically reopen it once it
