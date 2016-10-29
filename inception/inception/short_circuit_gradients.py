@@ -489,6 +489,8 @@ def gradients_short_circuited(ys,
                            #logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                              #[tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
                            #for index, y in enumerate(in_grad)]
+              print(in_grad)
+              print(tf.shape(in_grad))
               short_circuit_op = control_flow_ops.cond(sync_token_queue.size() > 0,
                                                        lambda: zero_grad,
                                                        lambda: in_grad)
