@@ -281,6 +281,7 @@ def train(target, dataset, cluster_spec):
             cond_short_circuit = control_flow_ops.cond(is_straggler,
                                                        short_circuit_ts,
                                                        normal_ts, name=name)
+            print(cond_short_circuit.name)
             count += 1
 
             short_circuit_sgv = ge.SubGraphView(inception_train_graph.get_operation_by_name(name), passthrough_ts=operation.inputs)
