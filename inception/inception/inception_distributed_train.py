@@ -290,7 +290,8 @@ def train(target, dataset, cluster_spec):
           cond_short_circuit_sgv.remap_inputs([0])
 
           # 2. Reroute
-          ge.reroute.swap_outputs(cond_short_circuit_sgv, operation)
+          ge.reroute.swap_inputs(cond_short_circuit_sgv, operation)
+          #ge.reroute.swap_outputs(cond_short_circuit_sgv, operation)
 
       tf.logging.info("Injected short circuiting...")
 
