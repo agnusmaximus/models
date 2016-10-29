@@ -33,6 +33,8 @@ from inception import inception_model as inception
 from inception.slim import slim
 from tensorflow.python.ops import logging_ops
 from tensorflow.python.client import timeline
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import control_flow_ops
 import tensorflow.contrib.graph_editor as ge
 
 FLAGS = tf.app.flags.FLAGS
