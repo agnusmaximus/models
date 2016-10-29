@@ -267,21 +267,32 @@ def train(target, dataset, cluster_spec):
       #    created conditional wrapper operation from 1.
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
-          ge.detach_outputs(operation)
+          if len(operation.outputs) != 0:
 
-          """# 1. Create the conditional wrapper
-          short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
-          logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
-          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
-          for index, y in enumerate(operation.outputs)]
-          normal_op = lambda : operation.outputs
-          cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
-          short_circuit_op,
-          normal_op)
+            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
+                                         logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
+                                                         [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
+                                         for index, y in enumerate(operation.outputs)]
+            normal_op = lambda : operation.outputs
+            cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
+                                         short_circuit_op,
+                                         normal_op)
+
+            short_circuit_sgv = ge.SubGraphView(cond_short_circuit, passthrough_ts=operation.inputs)
+
+            """# 1. Create the conditional wrapper
+            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
+            logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
+            [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
+            for index, y in enumerate(operation.outputs)]
+            normal_op = lambda : operation.outputs
+            cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
+            short_circuit_op,
+            normal_op)
 
 
-          # 2. Reroute
-          reroute.reroute_b2a_outputs(cond_short_circuit, operation)"""
+            # 2. Reroute
+            reroute.reroute_b2a_outputs(cond_short_circuit, operation)"""
 
       tf.logging.info("Injected short circuiting...")
 
