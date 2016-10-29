@@ -512,23 +512,11 @@ def gradients_short_circuited(ys,
                 # pylint: disable=protected-access
                 with ops.get_default_graph()._original_op(op):
 
-                    tf.logging.info(len(op.inputs))
-
-                    if grad_fn:
-                        for index, output in enumerate(op.outputs):
-                            zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype)
-                            if index == 0:
-                                zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
-                            zero_grads.append(zero_grad)
-                    else:
-                        # ?
-                        f_in = [x for x in op.inputs] + out_grads
-                        f_types = [x.dtype for x in op.inputs]
-                        for index, output in enumerate(f_in):
-                            zero_grad = tf.zeros(tf.shape(output), dtype=f_types[index])
-                            if index == 0:
-                                zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
-                            zero_grads.append(zero_grad)
+                    for index, input in enumerate(op.inputs):
+                        zero_grad = tf.zeros(tf.shape(input), dtype=input.dtype)
+                        if index == 0:
+                            zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
+                        zero_grads.append(zero_grad)
 
             tf.logging.info("zero grad function %d" % len(zero_grads))
 
