@@ -281,6 +281,7 @@ def train(target, dataset, cluster_spec):
             cond_short_circuit = control_flow_ops.cond(is_straggler,
                                                        short_circuit_ts,
                                                        normal_ts, name=name)
+            print(inception_train_graph.get_operations())
             cond_ops = [x for x in inception_train_graph.get_operations() if name in x]
             count += 1
 
