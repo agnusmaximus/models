@@ -512,13 +512,13 @@ def gradients_short_circuited(ys,
                 # pylint: disable=protected-access
                 with ops.get_default_graph()._original_op(op):
                     if grad_fn:
-                        tf.logging.info("GRAD FN")
                         for index, output in enumerate(op.outputs):
                             zero_grad = tf.zeros(tf.shape(output), dtype=output.dtype)
                             if index == 0:
                                 zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
                             zero_grads.append(zero_grad)
                     else:
+                        # ?
                         f_in = [x for x in op.inputs] + out_grads
                         f_types = [x.dtype for x in op.inputs]
                         for index, output in enumerate(f_in):
@@ -528,7 +528,11 @@ def gradients_short_circuited(ys,
                             zero_grads.append(zero_grad)
 
             tf.logging.info("zero grad function %d" % len(zero_grads))
-            tf.logging.info(zero_grads)
+            try:
+                op_type = op.get_attr("_gradient_op_type")
+            except ValueError:
+                op_type = op.type
+            tf.logging.info("YOOO: %d" % ops._shape_registry.lookup(op_type))
             return zero_grads
 
         # Original gradient computation function in a wrapper
@@ -539,7 +543,6 @@ def gradients_short_circuited(ys,
                 with ops.get_default_graph()._original_op(op):
                   # pylint: enable=protected-access
                   if grad_fn:
-                    tf.logging.info("GRAD FN")
                     # If grad_fn was found, do not use SymbolicGradient even for
                     # functions.
                     in_grads = _AsList(grad_fn(op, *out_grads))
@@ -558,7 +561,6 @@ def gradients_short_circuited(ys,
                     in_grads = control_flow_ops.tuple(in_grads)
                 _LogOpGradients(op, out_grads, in_grads)
             tf.logging.info("In grad function %d" % len(in_grads))
-            tf.logging.info(in_grads)
             return in_grads
 
         # If none gradient, no need to do anything
