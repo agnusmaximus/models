@@ -19,6 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+from inception import short_circuit_compute_gradient
 from tensorflow.python.ops import logging_ops
 from tensorflow.core.framework import types_pb2
 from tensorflow.python.framework import ops
@@ -224,7 +225,8 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     Returns:
       A list of (gradient, variable) pairs.
     """
-    return self._opt.compute_gradients(*args, **kwargs)
+    return short_circuit_compute_gradient.compute_gradients_with_injected_short_circuiting(*args, **kwargs)
+    #return self._opt.compute_gradients(*args, **kwargs)
 
   def apply_gradients(self, grads_and_vars, global_step=None, name=None):
     """Apply gradients to variables.

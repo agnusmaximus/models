@@ -33,9 +33,6 @@ from inception import inception_model as inception
 from inception.slim import slim
 from tensorflow.python.ops import logging_ops
 from tensorflow.python.client import timeline
-from tensorflow.python.ops import math_ops
-from tensorflow.python.ops import control_flow_ops
-import tensorflow.contrib.graph_editor as ge
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -96,7 +93,6 @@ RMSPROP_EPSILON = 1.0              # Epsilon term for RMSProp.
 
 
 def train(target, dataset, cluster_spec):
-  inception_train_graph = tf.get_default_graph()
 
   """Train Inception on a dataset for a number of steps."""
   # Number of workers and parameter servers are infered from the workers and ps
@@ -253,47 +249,6 @@ def train(target, dataset, cluster_spec):
 
       # Build the summary operation based on the TF collection of Summaries.
       summary_op = tf.merge_all_summaries()
-
-      # Modify the graph so that stragglers try to detect they are stragglers and
-      # short circuit from the gradient computations.
-
-      # Modify the graph so that stragglers try to detect they are stragglers and
-      # short circuit from the gradient computations.
-      #
-      # We will do this via the contrib/graph_editor api, where the steps are
-      # 1. For every "gradient" namespace operation we create a conditional operation
-      #    that checks whether the sync_token_queue is empty. If it is not empty, it
-      #    short circuits, returning a 0 tensor of the same dimension as the original
-      #    operations' output. Otherwise it returns the original operation's output.
-      # 2. Reroute the inputs of the "gradient" namespace operation to that of the newly
-      #    created conditional wrapper operation from 1.
-      count = 0
-      for operation in inception_train_graph.get_operations():
-        if "gradients/" in operation.node_def.name:
-
-          # 1. Create the conditional wrapper
-          short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
-                                       logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
-                                                         [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
-                                       for index, y in enumerate(operation.outputs)]
-          normal_op = lambda : operation.outputs
-          cond_short_circuit = tf.cond(sync_token_queue.size() <= 0,
-                                       short_circuit_op,
-                                       normal_op)
-
-          print(cond_short_circuit)
-          print(cond_short_circuit.op)
-          print([x for x in cond_short_circuit.op.outputs])
-          print([x for x in cond_short_circuit.op.inputs])
-          print([x for x in operation.outputs])
-          cond_short_circuit_sgv = ge.SubGraphView(cond_short_circuit.op)
-          cond_short_circuit_sgv.remap_inputs([0])
-
-          # 2. Reroute
-          ge.reroute.swap_inputs(cond_short_circuit_sgv, operation)
-          #ge.reroute.swap_outputs(cond_short_circuit_sgv, operation)
-
-      tf.logging.info("Injected short circuiting...")
 
       # Build an initialization operation to run below.
       init_op = tf.initialize_all_variables()
