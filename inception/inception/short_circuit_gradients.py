@@ -547,7 +547,7 @@ def gradients_short_circuited(ys,
             in_grads = tf.cond(sync_token_queue.size() > 0,
                                zero_grad_function,
                                in_grad_function)
-            if type(in_grads) == tf.Tensor):
+            if type(in_grads) == tf.Tensor:
                 in_grads = [in_grads]
             for t_in, in_grad in zip(op.inputs, in_grads):
                 if isinstance(in_grad, ops.Tensor):
