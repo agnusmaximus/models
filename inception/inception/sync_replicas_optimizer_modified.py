@@ -19,7 +19,6 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
-from inception import short_circuit_compute_gradient
 from tensorflow.python.ops import logging_ops
 from tensorflow.core.framework import types_pb2
 from tensorflow.python.framework import ops
@@ -32,7 +31,8 @@ from tensorflow.python.ops import variables
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python.training import optimizer
 from tensorflow.python.training import queue_runner
-
+from inception import image_processing
+from inception import short_circuit_compute_gradient
 
 # Please note that the gradients from replicas are averaged instead of summed
 # (as in the old sync_replicas_optimizer) so you need to increase the learning
