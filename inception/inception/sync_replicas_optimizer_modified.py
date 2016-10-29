@@ -234,7 +234,7 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     Returns:
       A list of (gradient, variable) pairs.
     """
-    kwargs["sync_token_queue"] = self._sync_token_queue
+    #kwargs["sync_token_queue"] = self._sync_token_queue
     #return short_circuit_compute_gradient.compute_gradients_with_injected_short_circuiting(*args, **kwargs)
     return self._opt.compute_gradients(*args, **kwargs)
 
