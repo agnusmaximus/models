@@ -269,14 +269,15 @@ def train(target, dataset, cluster_spec):
         if "gradients/" in operation.node_def.name:
           if len(operation.outputs) != 0:
 
-            short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
+            short_circuit_ts = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
                                          logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                                          [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
                                          for index, y in enumerate(operation.outputs)]
-            normal_op = lambda : operation.outputs
-            cond_short_circuit = tf.cond(sync_token_queue.size() > 0,
-                                         short_circuit_op,
-                                         normal_op)
+            normal_ts = lambda : operation.outputs
+            is_straggler = math_ops.less(0, sync_token_queue.size())
+            cond_short_circuit = control_flow_ops.cond.cond(is_straggler,
+                                                            short_circuit_ts,
+                                                            normal_ts)
 
             tf.logging.info("YO: ")
             tf.logging.info(cond_short_circuit.__class__)
