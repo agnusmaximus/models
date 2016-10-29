@@ -284,7 +284,7 @@ def train(target, dataset, cluster_spec):
             cond_ops = [x for x in inception_train_graph.get_operations() if name in x.name]
 
             short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
-            print(short_circuit_sgv.inputs())
+            print([x for x in short_circuit_sgv.inputs])
             ge.reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
             count += 1
             #short_circuit_sgv = ge.SubGraphView(cond_short_circuit)
