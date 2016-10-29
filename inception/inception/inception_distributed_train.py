@@ -278,13 +278,14 @@ def train(target, dataset, cluster_spec):
                                          for index, y in enumerate(operation.outputs)]
             normal_ts = lambda : operation.outputs
             is_straggler = math_ops.less(0, tf.identity(sync_token_queue.size()))
-            cond_short_circuit = control_flow_ops.cond(is_straggler,
-                                                       short_circuit_ts,
-                                                       normal_ts, name=name)
+            #cond_short_circuit = control_flow_ops.cond(is_straggler,
+            #                                           short_circuit_ts,
+            #                                           normal_ts, name=name)
+            cond_short_circuit = tf.identity(tf.Variable(.8), name=name)
             cond_ops = [x for x in inception_train_graph.get_operations() if name in x.name]
 
-            #short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
-            short_circuit_sgv = tf.identity(tf.Variable(.8), name=name)
+            short_circuit_sgv = ge.SubGraphView(cond_ops, passthrough_ts=operation.inputs)
+
             print([x for x in short_circuit_sgv.inputs])
             print([x for x in operation.inputs])
             ge.reroute.reroute_b2a_inputs(short_circuit_sgv, operation)
