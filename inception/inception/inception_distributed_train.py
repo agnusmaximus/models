@@ -33,7 +33,7 @@ from inception import inception_model as inception
 from inception.slim import slim
 from tensorflow.python.ops import logging_ops
 from tensorflow.python.client import timeline
-from tensorflow.contrib.graph_editor import reroute
+import tensorflow.contrib.graph_editor as ge
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -268,7 +268,9 @@ def train(target, dataset, cluster_spec):
       for operation in inception_train_graph.get_operations():
         if "gradients/" in operation.node_def.name:
           if len(operation.outputs) > 0:
-            # 1. Create the conditional wrapper
+            ge.edit.detach_outputs(operation)
+
+            """# 1. Create the conditional wrapper
             short_circuit_op = lambda : [tf.zeros(tf.shape(y), dtype=y.dtype) if index != 0 else
                                          logging_ops.Print(tf.zeros(tf.shape(y), dtype=y.dtype),
                                                            [tf.zeros(tf.shape(y), dtype=y.dtype)], message="I'm a straggler!")
@@ -280,7 +282,7 @@ def train(target, dataset, cluster_spec):
 
 
             # 2. Reroute
-            reroute.reroute_b2a_outputs(cond_short_circuit, operation)
+            reroute.reroute_b2a_outputs(cond_short_circuit, operation)"""
 
       tf.logging.info("Injected short circuiting...")
 
