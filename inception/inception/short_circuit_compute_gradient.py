@@ -10,6 +10,30 @@ from tensorflow.python.ops import gradients
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import variables
 from tensorflow.python.training import slot_creator
+import short_circuit_gradients as gradients
+
+def valid_dtypes():
+    """Valid types for loss, variables and gradients.
+    Subclasses should override to allow other float types.
+    Returns:
+      Valid types for loss, variables and gradients.
+    """
+    return set([dtypes.float16, dtypes.float32, dtypes.float64])
+
+def assert_valid_dtypes(tensors):
+    """Asserts tensors are all valid types (see `_valid_dtypes`).
+    Args:
+      tensors: Tensors to check.
+    Raises:
+      ValueError: If any tensor is not a valid type.
+    """
+    valid_dtypes = valid_dtypes()
+    for t in tensors:
+      dtype = t.dtype.base_dtype
+      if dtype not in valid_dtypes:
+        raise ValueError(
+            "Invalid type %r for %s, expected: %s." % (
+                dtype, t.name, [v for v in valid_dtypes]))
 
 def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
                                                      gate_gradients=optimizer.Optimizer.GATE_OP,
@@ -21,6 +45,9 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
         raise ValueError("gate_gradients must be one of: Optimizer.GATE_NONE, "
                          "Optimizer.GATE_OP, Optimizer.GATE_GRAPH.  Not %s" %
                          gate_gradients)
+    assert_valid_dtypes([loss])
+    if grad_loss is not None:
+        assert_valid_dtypes([grad_loss])
     if var_list is None:
       var_list = variables.trainable_variables()
     for var in var_list:
@@ -37,4 +64,5 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
     if gate_gradients == optimizer.Optimizer.GATE_GRAPH:
         grads = control_flow_ops.tuple(grads)
     grads_and_vars = list(zip(grads, var_list))
+    assert_valid_dtypes([v for g, v in grads_and_vars if g is not None])
     return grads_and_vars
