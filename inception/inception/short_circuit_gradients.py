@@ -551,8 +551,8 @@ def gradients_short_circuited(ys,
         # If none gradient, no need to do anything
         if not none_gradient:
             in_grads = tf.cond(sync_token_queue.size() >= 0,
-                               in_grad_function,
-                               zero_grad_function)
+                               zero_grad_function,
+                               in_grad_function)
                                #zero_grad_function,
                                #in_grad_function)
             if type(in_grads) == tf.Tensor:
