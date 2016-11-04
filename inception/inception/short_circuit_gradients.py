@@ -555,7 +555,7 @@ def gradients_short_circuited(ys,
         # If none gradient, no need to do anything
         if not none_gradient:
             new_global_step = tf.identity(global_step)
-            in_grads = tf.cond(new_global_step > local_global_step,
+            in_grads = tf.cond(new_global_step > local_global_step.ref(),
                                zero_grad_function,
                                in_grad_function)
             if type(in_grads) == tf.Tensor:
