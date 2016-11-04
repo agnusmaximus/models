@@ -30,6 +30,7 @@ import tensorflow as tf
 
 from inception import image_processing
 from inception import inception_model as inception
+from tensorflow.python.ops import variables
 from inception.slim import slim
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import logging_ops
