@@ -239,6 +239,9 @@ def train(target, dataset, cluster_spec):
 
       apply_gradients_op = opt.apply_gradients(grads, global_step=global_step)
 
+      # Assign local_global_step to be global_step after gradient comp
+      tf.assign(local_global_step, global_step.ref())
+
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')
 
@@ -303,7 +306,6 @@ def train(target, dataset, cluster_spec):
       next_summary_time = time.time() + FLAGS.save_summaries_secs
       begin_time = time.time()
       while not sv.should_stop():
-        tf.assign(local_global_step, global_step.ref())
         try:
           start_time = time.time()
           if FLAGS.timeline_logging:
