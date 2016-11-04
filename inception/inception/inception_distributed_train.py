@@ -29,6 +29,7 @@ import numpy as np
 import tensorflow as tf
 
 from inception import image_processing
+from tensorflow.python.framework import ops
 from inception import inception_model as inception
 from tensorflow.python.ops import variables
 from inception.slim import slim
