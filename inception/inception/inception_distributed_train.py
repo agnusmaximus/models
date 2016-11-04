@@ -128,7 +128,7 @@ def train(target, dataset, cluster_spec):
 
       #local_global_step = tf.get_variable("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
       #local_global_step = state_ops.assign("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
-      local_global_step = variables.Variable(initial_value=0, trainable=False, collection=[ops.GraphKeys.LOCAL_VARIABLES], dtype=tf.int64, name="local_global_step_%d" % FLAGS.task_id)
+      local_global_step = variables.Variable(initial_value=0, trainable=False, collections=[ops.GraphKeys.LOCAL_VARIABLES], dtype=tf.int64, name="local_global_step_%d" % FLAGS.task_id)
 
       # Create a variable to count the number of train() calls. This equals the
       # number of updates applied to the variables.
