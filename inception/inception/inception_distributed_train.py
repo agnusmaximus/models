@@ -302,7 +302,7 @@ def train(target, dataset, cluster_spec):
       next_summary_time = time.time() + FLAGS.save_summaries_secs
       begin_time = time.time()
       while not sv.should_stop():
-        local_global_step = tf.Variable(global_step.ref())
+        #local_global_step = tf.Variable(global_step.ref())
         try:
           start_time = time.time()
           if FLAGS.timeline_logging:
