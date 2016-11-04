@@ -117,7 +117,7 @@ def train(target, dataset, cluster_spec):
 
   # Ops are assigned to worker by default.
   with tf.device('/job:worker/task:%d' % FLAGS.task_id):
-    local_global_step = tf.get_variable("local_global_step", shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+    local_global_step = tf.get_variable("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
 
     # Variables and its related init/assign ops are assigned to ps.
     with slim.scopes.arg_scope(
@@ -241,6 +241,7 @@ def train(target, dataset, cluster_spec):
 
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')
+
         # Assign local_global_step to be global_step after gradient comp
         tf.assign(local_global_step, global_step.ref())
 
