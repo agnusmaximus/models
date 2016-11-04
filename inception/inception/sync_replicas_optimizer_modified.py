@@ -348,6 +348,8 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
           token = sync_token_queue.dequeue()
           token = logging_ops.Print(token, [token], message="Dequeueing token...")
         train_op = state_ops.assign(self._local_step, token)
+        # Also update local global step
+        train_op = state_ops.assign(self._local_global_step, logging_ops.Print(token, [token], message="Setting global local step"))
 
         with ops.control_dependencies([update_op]):
           # Sync_op needs to insert tokens to the token queue at the end of the
