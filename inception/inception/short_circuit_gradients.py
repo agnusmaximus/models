@@ -313,7 +313,9 @@ def gradients_short_circuited(ys,
                               colocate_gradients_with_ops=False,
                               gate_gradients=False,
                               aggregation_method=None,
-                              sync_token_queue=None):
+                              sync_token_queue=None,
+                              local_global_step=None,
+                              global_step=None):
   """Constructs symbolic partial derivatives of sum of `ys` w.r.t. x in `xs`.
 
   `ys` and `xs` are each a `Tensor` or a list of tensors.  `grad_ys`
@@ -357,6 +359,8 @@ def gradients_short_circuited(ys,
 
   """
   assert sync_token_queue is not None
+  assert global_step is not None
+  assert local_global_step is not None
   ys = _AsList(ys)
   xs = _AsList(xs)
   if grad_ys is None:
@@ -550,11 +554,11 @@ def gradients_short_circuited(ys,
 
         # If none gradient, no need to do anything
         if not none_gradient:
-            in_grads = tf.cond(sync_token_queue.size() >= 0,
-                               #zero_grad_function,
-                               #in_grad_function)
-                               in_grad_function,
-                               zero_grad_function)
+            new_global_step = global_step.ref()
+            new_global_step = logging_ops.Print(new_global_step, [new_global_step], message="YOOOO " + str(local_global_step.device)
+            in_grads = tf.cond(new_global_step > local_global_step
+                               zero_grad_function,
+                               in_grad_function)
             if type(in_grads) == tf.Tensor:
                 in_grads = [in_grads]
             for t_in, in_grad in zip(op.inputs, in_grads):

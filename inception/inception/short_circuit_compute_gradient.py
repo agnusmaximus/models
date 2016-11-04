@@ -40,6 +40,8 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
                                                      aggregation_method=None,
                                                      colocate_gradients_with_ops=False,
                                                      sync_token_queue=None,
+                                                     local_global_step=None,
+                                                     global_step=None;
                                                      grad_loss=None):
     assert sync_token_queue is not None
     if gate_gradients not in [optimizer.Optimizer.GATE_NONE, optimizer.Optimizer.GATE_OP,
@@ -63,7 +65,9 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
         gate_gradients=(gate_gradients == optimizer.Optimizer.GATE_OP),
         aggregation_method=aggregation_method,
         colocate_gradients_with_ops=colocate_gradients_with_ops,
-        sync_token_queue=sync_token_queue)
+        sync_token_queue=sync_token_queue,
+        local_global_step=local_global_step,
+        global_step=global_step)
     if gate_gradients == optimizer.Optimizer.GATE_GRAPH:
         grads = control_flow_ops.tuple(grads)
     grads_and_vars = list(zip(grads, var_list))
