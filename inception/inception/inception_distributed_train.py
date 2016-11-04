@@ -239,11 +239,10 @@ def train(target, dataset, cluster_spec):
 
       apply_gradients_op = opt.apply_gradients(grads, global_step=global_step)
 
-      # Assign local_global_step to be global_step after gradient comp
-      tf.assign(local_global_step, global_step.ref())
-
       with tf.control_dependencies([apply_gradients_op]):
         train_op = tf.identity(total_loss, name='train_op')
+        # Assign local_global_step to be global_step after gradient comp
+        tf.assign(local_global_step, global_step.ref())
 
       # Get chief queue_runners, init_tokens and clean_up_op, which is used to
       # synchronize replicas.
