@@ -268,6 +268,10 @@ def train(target, dataset, cluster_spec):
       # Build an initialization operation to run below.
       init_op = tf.initialize_all_variables()
 
+      # Initialize local global step
+      local_global_step_init_op = state_ops.assign(local_global_step, global_step)
+
+
       # We run the summaries in the same thread as the training operations by
       # passing in None for summary_op to avoid a summary_thread being started.
       # Running summaries and training operations in parallel could run out of
@@ -276,6 +280,7 @@ def train(target, dataset, cluster_spec):
         local_init_op = opt.chief_init_op
       else:
         local_init_op = opt.local_step_init_op
+      local_init_op.append(local_global_step_init_op)
       ready_for_local_init_op = opt.ready_for_local_init_op
       sv = tf.train.Supervisor(is_chief=is_chief,
                                local_init_op=local_init_op,
