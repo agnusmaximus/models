@@ -117,9 +117,7 @@ def train(target, dataset, cluster_spec):
 
   # Ops are assigned to worker by default.
   with tf.device('/job:worker/task:%d' % FLAGS.task_id):
-    localgg_global_step = tf.get_variable("testing", shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
-    tf.logging.info("YOOOOOO")
-    tf.logging.info(localgg_global_step.device)
+    local_global_step = tf.get_variable("local_global_step", shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
 
     # Variables and its related init/assign ops are assigned to ps.
     with slim.scopes.arg_scope(
@@ -305,7 +303,7 @@ def train(target, dataset, cluster_spec):
       next_summary_time = time.time() + FLAGS.save_summaries_secs
       begin_time = time.time()
       while not sv.should_stop():
-        #local_global_step = tf.Variable(global_step.ref())
+        local_global_step = tf.identity(global_step)
         try:
           start_time = time.time()
           if FLAGS.timeline_logging:
