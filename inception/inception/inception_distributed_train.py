@@ -322,10 +322,11 @@ def train(target, dataset, cluster_spec):
             run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
             run_metadata = tf.RunMetadata()
             loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
+            sess.run(assign_op, options=run_options)
           else:
             loss_value, step = sess.run([train_op, global_step])
+            sess.run(assign_op)
 
-          sess.run(assign_op)
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
