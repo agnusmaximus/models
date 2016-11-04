@@ -117,7 +117,7 @@ def train(target, dataset, cluster_spec):
 
   # Ops are assigned to worker by default.
   with tf.device('/job:worker/task:%d' % FLAGS.task_id):
-    localgg_global_step = tf.get_variable("testing", shape=[], dtype=tf.int64, initialize=tf.zeros_initializer, trainable=False)
+    localgg_global_step = tf.get_variable("testing", shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
 
     # Variables and its related init/assign ops are assigned to ps.
     with slim.scopes.arg_scope(
