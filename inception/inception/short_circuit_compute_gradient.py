@@ -41,7 +41,7 @@ def compute_gradients_with_injected_short_circuiting(loss, var_list=None,
                                                      colocate_gradients_with_ops=False,
                                                      sync_token_queue=None,
                                                      local_global_step=None,
-                                                     global_step=None;
+                                                     global_step=None,
                                                      grad_loss=None):
     assert sync_token_queue is not None
     if gate_gradients not in [optimizer.Optimizer.GATE_NONE, optimizer.Optimizer.GATE_OP,
