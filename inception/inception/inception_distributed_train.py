@@ -246,10 +246,10 @@ def train(target, dataset, cluster_spec):
 
       apply_gradients_op = opt.apply_gradients(grads, global_step=global_step)
 
+      assign_op = state_ops.assign(local_global_step, logging_ops.Print(global_step, [global_step], message="Assigning global step to local global step"))
+
       with tf.control_dependencies([apply_gradients_op]):
-        assign_op = state_ops.assign(local_global_step, logging_ops.Print(global_step, [global_step], message="Assigning global step to local global step"))
-        with tf.control_dependencies([assign_op]):
-          train_op = tf.identity(total_loss, name='train_op')
+        train_op = tf.identity(total_loss, name='train_op')
       # Get chief queue_runners, init_tokens and clean_up_op, which is used to
       # synchronize replicas.
       # More details can be found in sync_replicas_optimizer.
@@ -324,6 +324,8 @@ def train(target, dataset, cluster_spec):
             loss_value, step = sess.run([train_op, global_step], options=run_options, run_metadata=run_metadata)
           else:
             loss_value, step = sess.run([train_op, global_step])
+
+          sess.run(assign_op)
 
           assert not np.isnan(loss_value), 'Model diverged with loss = NaN'
 
