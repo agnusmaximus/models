@@ -556,7 +556,7 @@ def gradients_short_circuited(ys,
         # If none gradient, no need to do anything
         if not none_gradient:
             new_global_step = global_step.value()
-            new_global_step = logging_ops.Print(new_global_step, [new_global_step], message="New globa step")
+            #new_global_step = logging_ops.Print(new_global_step, [new_global_step], message="New globa step")
             in_grads = tf.cond(new_global_step > local_global_step.ref(),
             #in_grads = tf.cond(sync_token_queue.size() >= 0,
                                zero_grad_function,
