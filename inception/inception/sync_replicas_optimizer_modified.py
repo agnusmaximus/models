@@ -352,9 +352,10 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
         with ops.control_dependencies([update_op]):
           # Sync_op needs to insert tokens to the token queue at the end of the
           # step so the replicas can fetch them to start the next step.
-          #with ops.control_dependencies([update_local_global_step_op]):
-          tokens = array_ops.fill([self._tokens_per_step], global_step.ref())
-          sync_op = sync_token_queue.enqueue_many((tokens,))
+          update_local_global_step_op = state_ops.assign(self._local_global_step, self._global_step)
+          with ops.control_dependencies([update_local_global_step_op]):
+            tokens = array_ops.fill([self._tokens_per_step], global_step.ref())
+            sync_op = sync_token_queue.enqueue_many((tokens,))
 
         if self._variable_averages is not None:
           with ops.control_dependencies([sync_op]), ops.name_scope(""):
