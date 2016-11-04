@@ -117,12 +117,14 @@ def train(target, dataset, cluster_spec):
 
   # Ops are assigned to worker by default.
   with tf.device('/job:worker/task:%d' % FLAGS.task_id):
-    local_global_step = tf.get_variable("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
 
     # Variables and its related init/assign ops are assigned to ps.
     with slim.scopes.arg_scope(
         [slim.variables.variable, slim.variables.global_step],
         device=slim.variables.VariableDeviceChooser(num_parameter_servers)):
+
+      local_global_step = tf.get_variable("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+
       # Create a variable to count the number of train() calls. This equals the
       # number of updates applied to the variables.
       global_step = slim.variables.global_step()
