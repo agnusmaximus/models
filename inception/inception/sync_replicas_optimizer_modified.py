@@ -198,7 +198,7 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     self._variables_to_average = variables_to_average
     self._total_num_replicas = total_num_replicas
     self._tokens_per_step = max(total_num_replicas, replicas_to_aggregate)
-    self._global_step = global_step
+    self._global_step = None
     self._local_global_step = None
     self._sync_token_queue = None
 
