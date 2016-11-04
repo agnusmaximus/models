@@ -31,6 +31,7 @@ import tensorflow as tf
 from inception import image_processing
 from inception import inception_model as inception
 from inception.slim import slim
+from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import logging_ops
 from tensorflow.python.client import timeline
 
@@ -123,7 +124,9 @@ def train(target, dataset, cluster_spec):
         [slim.variables.variable, slim.variables.global_step],
         device=slim.variables.VariableDeviceChooser(num_parameter_servers)):
 
-      local_global_step = tf.get_variable("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+      #local_global_step = tf.get_variable("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+      #local_global_step = state_ops.assign("local_global_step_%d" % FLAGS.task_id, shape=[], dtype=tf.int64, initializer=tf.zeros_initializer, trainable=False)
+      local_global_step = variables.Variable(initial_value=0, trainable=False, collection=[ops.GraphKeys.LOCAL_VARIABLES], dtype=tf.int64, name="local_global_step_%d" % FLAGS.task_id)
 
       # Create a variable to count the number of train() calls. This equals the
       # number of updates applied to the variables.
