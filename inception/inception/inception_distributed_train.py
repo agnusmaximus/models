@@ -117,6 +117,7 @@ def train(target, dataset, cluster_spec):
 
   # Ops are assigned to worker by default.
   with tf.device('/job:worker/task:%d' % FLAGS.task_id):
+    localgg_global_step = tf.Variable(0)
 
     # Variables and its related init/assign ops are assigned to ps.
     with slim.scopes.arg_scope(
@@ -125,7 +126,6 @@ def train(target, dataset, cluster_spec):
       # Create a variable to count the number of train() calls. This equals the
       # number of updates applied to the variables.
       global_step = slim.variables.global_step()
-      localgg_global_step = tf.Variable(0)
 
       # Calculate the learning rate schedule.
       num_batches_per_epoch = (dataset.num_examples_per_epoch() /
