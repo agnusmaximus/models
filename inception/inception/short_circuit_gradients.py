@@ -557,6 +557,7 @@ def gradients_short_circuited(ys,
         if not none_gradient:
             with ops.control_dependencies(out_grads):
                 new_global_step = global_step.value()
+                new_global_step = logging_ops.Print(new_global_step, [new_global_step], message="CHECKING global step")
                 in_grads = tf.cond(new_global_step > local_global_step.ref(),
                                    zero_grad_function,
                                    in_grad_function)
