@@ -40,7 +40,7 @@ from tensorflow.python.client import timeline
 FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_boolean('should_summarize', True, 'Whether Chief should write summaries.')
-tf.app.flags.DEFINE_boolean('timeline_logging', False, 'Whether to log timeline of events.')
+tf.app.flags.DEFINE_boolean('timeline_logging', True, 'Whether to log timeline of events.')
 tf.app.flags.DEFINE_string('job_name', '', 'One of "ps", "worker"')
 tf.app.flags.DEFINE_string('ps_hosts', '',
                            """Comma-separated list of hostname:port for the """
