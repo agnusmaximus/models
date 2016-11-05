@@ -54,7 +54,7 @@ tf.app.flags.DEFINE_string('worker_hosts', '',
 tf.app.flags.DEFINE_string('train_dir', '/tmp/imagenet_train',
                            """Directory where to write event logs """
                            """and checkpoint.""")
-tf.app.flags.DEFINE_integer('max_steps', 100, 'Number of batches to run.')
+tf.app.flags.DEFINE_integer('max_steps', 0, 'Number of batches to run.')
 tf.app.flags.DEFINE_string('subset', 'train', 'Either "train" or "validation".')
 tf.app.flags.DEFINE_boolean('log_device_placement', False,
                             'Whether to log device placement.')
