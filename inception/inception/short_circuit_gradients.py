@@ -519,8 +519,8 @@ def gradients_short_circuited(ys,
 
                     for index, input in enumerate(op.inputs):
                         zero_grad = tf.zeros(tf.shape(input), dtype=input.dtype)
-                        #if index == 0:
-                            #zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
+                        if index == 0:
+                            zero_grad = logging_ops.Print(zero_grad, [zero_grad], message="I'm a straggler; Piping up zeros.")
                         zero_grads.append(zero_grad)
 
             return zero_grads
