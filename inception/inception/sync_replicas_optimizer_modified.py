@@ -236,11 +236,11 @@ class SyncReplicasOptimizerV2(optimizer.Optimizer):
     Returns:
       A list of (gradient, variable) pairs.
     """
-    kwargs["sync_token_queue"] = self._sync_token_queue
-    kwargs["local_global_step"] = self._local_global_step
-    kwargs["global_step"] = self._global_step
-    return short_circuit_compute_gradient.compute_gradients_with_injected_short_circuiting(*args, **kwargs)
-    #return self._opt.compute_gradients(*args, **kwargs)
+    #kwargs["sync_token_queue"] = self._sync_token_queue
+    #kwargs["local_global_step"] = self._local_global_step
+    #kwargs["global_step"] = self._global_step
+    #return short_circuit_compute_gradient.compute_gradients_with_injected_short_circuiting(*args, **kwargs)
+    return self._opt.compute_gradients(*args, **kwargs)
 
   def apply_gradients(self, grads_and_vars, global_step=None, name=None):
     """Apply gradients to variables.
