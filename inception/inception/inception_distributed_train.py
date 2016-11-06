@@ -220,8 +220,8 @@ def train(target, dataset, cluster_spec):
       # Use V2 optimizer
       opt = SyncReplicasOptimizerV2(
         opt,
-        #replicas_to_aggregate=int(num_replicas_to_aggregate * 85.0 / 100.0),
-        replicas_to_aggregate=num_replicas_to_aggregate,
+        replicas_to_aggregate=int(num_replicas_to_aggregate * 85.0 / 100.0),
+        #replicas_to_aggregate=num_replicas_to_aggregate,
         total_num_replicas=num_workers,
         variable_averages=exp_moving_averager,
         variables_to_average=variables_to_average,
