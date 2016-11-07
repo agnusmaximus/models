@@ -82,11 +82,11 @@ tf.app.flags.DEFINE_integer('save_summaries_secs', 300,
 # more guidance and discussion.
 #
 # Learning rate decay factor selected from https://arxiv.org/abs/1604.00981
-tf.app.flags.DEFINE_float('initial_learning_rate', 0.4,
+tf.app.flags.DEFINE_float('initial_learning_rate', 0.145,
                           'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 2.0,
                           'Epochs after which learning rate decays.')
-tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.99,
+tf.app.flags.DEFINE_float('learning_rate_decay_factor', 0.94,
                           'Learning rate decay factor.')
 
 # Constants dictating the learning rate schedule.
