@@ -30,7 +30,7 @@ configuration = {
     "spot_price" : ".2",                 # Has to be a string
 
     # SSH configuration
-    "ssh_username" : "ubuntu",            # For sshing. E.G: ssh ssh_username@hostname
+    "ssh_username" : "ubuntu",           # For sshing. E.G: ssh ssh_username@hostname
     "path_to_keyfile" : "/Users/maxlam/Desktop/School/Fall2016/Research/DistributedSGD/DistributedSGD.pem",
 }
 
@@ -450,7 +450,7 @@ def clean_launch_and_run(argv):
     #    printing status outputs in the meanwhile
     # 4. Checks that configuration has been satisfied
     # 5. Runs inception
-    shut_everything_down()
+    shut_everything_down(None)
     launch_instances()
     wait_until_instance_request_status_fulfilled()
     wait_until_running_instances_initialized()
