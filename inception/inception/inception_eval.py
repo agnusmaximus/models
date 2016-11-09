@@ -16,7 +16,7 @@
 """
 from __future__ import absolute_import
 from __future__ import division
-from __future__ import print_function
+from __future__ import tf.logging.info_function
 
 from datetime import datetime
 import math
@@ -77,10 +77,10 @@ def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op):
       #   /my-favorite-path/imagenet_train/model.ckpt-0,
       # extract global_step from it.
       global_step = ckpt.model_checkpoint_path.split('/')[-1].split('-')[-1]
-      print('Succesfully loaded model from %s at step=%s.' %
+      tf.logging.info('Succesfully loaded model from %s at step=%s.' %
             (ckpt.model_checkpoint_path, global_step))
     else:
-      print('No checkpoint file found')
+      tf.logging.info('No checkpoint file found')
       return
 
     # Start the queue runners.
@@ -98,7 +98,7 @@ def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op):
       total_sample_count = num_iter * FLAGS.batch_size
       step = 0
 
-      print('%s: starting evaluation on (%s).' % (datetime.now(), FLAGS.subset))
+      tf.logging.info('%s: starting evaluation on (%s).' % (datetime.now(), FLAGS.subset))
       start_time = time.time()
       while step < num_iter and not coord.should_stop():
         top_1, top_5 = sess.run([top_1_op, top_5_op])
@@ -109,7 +109,7 @@ def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op):
           duration = time.time() - start_time
           sec_per_batch = duration / 20.0
           examples_per_sec = FLAGS.batch_size / sec_per_batch
-          print('%s: [%d batches out of %d] (%.1f examples/sec; %.3f'
+          tf.logging.info('%s: [%d batches out of %d] (%.1f examples/sec; %.3f'
                 'sec/batch)' % (datetime.now(), step, num_iter,
                                 examples_per_sec, sec_per_batch))
           start_time = time.time()
@@ -117,7 +117,7 @@ def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op):
       # Compute precision @ 1.
       precision_at_1 = count_top_1 / total_sample_count
       recall_at_5 = count_top_5 / total_sample_count
-      print('%s: precision @ 1 = %.4f recall @ 5 = %.4f [%d examples]' %
+      tf.logging.info('%s: precision @ 1 = %.4f recall @ 5 = %.4f [%d examples]' %
             (datetime.now(), precision_at_1, recall_at_5, total_sample_count))
 
       summary = tf.Summary()
