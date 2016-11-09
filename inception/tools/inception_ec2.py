@@ -51,6 +51,8 @@ def summarize_instances(instances):
     for k,v in instance_type_to_instance_map.items():
         print("%s - %d running" % (k, len(v)))
 
+    return instance_type_to_instance_map
+
 def summarize_idle_instances():
     print("Idle instances: (Idle = not running tensorflow)")
     summarize_instances(get_idle_instances())
@@ -177,7 +179,7 @@ def wait_until_instance_request_status_fulfilled(method="spot"):
 # and executes command on instance, returning the stdout.
 # Executes everything in one session, and returns all output from all the commands.
 def run_ssh_commands(instance, commands):
-    print("Instance %s, Running ssh commands: %s" % (instance.public_ip_address, " ".join(commands)))
+    print("Instance %s, Running ssh commands:\n%s" % (instance.public_ip_address, " ".join(commands)))
 
     # Always need to exit
     commands.append("exit")
@@ -201,17 +203,20 @@ def run_ssh_commands(instance, commands):
 
     return output
 
+def run_ssh_commands_parallel(instance, commands, q):
+    output = run_ssh_commands(instance, commands)
+    q.put((instance, output))
+
 # Checks whether instance is idle. Assumed that instance is up and running.
 # An instance is idle if it is not running tensorflow...
 # Returns a tuple of (instance, is_instance_idle). We return a tuple for multithreading ease.
 def is_instance_idle(q, instance):
     python_processes = run_ssh_commands(instance, ["ps aux | grep python"])
-    q.put((instance, not "tensorflow" in python_processes))
+    q.put((instance, not "imagenet" in python_processes))
 
 # Idle instances are running instances that are not running the inception model.
 # We check whether an instance is running the inception model by ssh'ing into a running machine,
 # and checking whether python is running.
-# TODO: parallelize like crazy
 def get_idle_instances():
     live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     threads = []
@@ -237,17 +242,7 @@ def get_idle_instances():
 
     return idle_instances
 
-# Returns whether the idle instances satisfy the specs of the configuration.
-def check_idle_instances_satisfy_configuration():
-    # Create a map of instance types to instances of that type
-    idle_instances = get_idle_instances()
-    instance_type_to_instance_map = {}
-    for instance in idle_instances:
-        typ = instance.instance_type
-        if typ not in instance_type_to_instance_map:
-            instance_type_to_instance_map[typ] = []
-        instance_type_to_instance_map[typ].append(instance)
-
+def get_instance_requirements():
     # Get the requirements given the specification of worker/master/etc machine types
     worker_instance_type, worker_count = configuration["worker_type"], configuration["n_workers"]
     master_instance_type, master_count = configuration["master_type"], configuration["n_masters"]
@@ -262,6 +257,16 @@ def check_idle_instances_satisfy_configuration():
         if type_needed not in reqs:
             reqs[type_needed] = 0
         reqs[type_needed] += count_needed
+    return reqs
+
+# Returns whether the idle instances satisfy the specs of the configuration.
+def check_idle_instances_satisfy_configuration():
+    # Create a map of instance types to instances of that type
+    idle_instances = get_idle_instances()
+    instance_type_to_instance_map = summarize_instances(idle_instances)
+
+    # Get instance requirements
+    reqs = get_instance_requirements()
 
     # Check the requirements are satisfied.
     print("Checking whether # of running instances satisfies the configuration...")
@@ -276,19 +281,119 @@ def shut_everything_down():
     terminate_all_requests()
     terminate_all_instances()
 
-def clean_launch():
+# Main method to run inception on a set of idle instances.
+def run_inception(batch_size=150, port=1234):
+
+    assert(configuration["n_masters"] == 1)
+
+    # Check idle instances satisfy configs
+    check_idle_instances_satisfy_configuration()
+
+    # Get idle instances
+    idle_instances = get_idle_instances()
+
+    # Assign instances for worker/ps/etc
+    instance_type_to_instance_map = summarize_instances(idle_instances)
+    specs = {
+        "master" : {"instance_type" : configuration["master_type"],
+                    "n_required" : configuration["n_masters"]},
+        "worker" : {"instance_type" : configuration["worker_type"],
+                    "n_required" : configuration["n_workers"]},
+        "ps" : {"instance_type" : configuration["ps_type"],
+                "n_required" : configuration["n_ps"]},
+        "evaluator" : {"instance_type" : configuration["evaluator_type"],
+                       "n_required" : configuration["n_evaluators"]}
+    }
+    machine_assignments = {
+        "master" : [],
+        "worker" : [],
+        "ps" : [],
+        "evaluator" : []
+    }
+    for role, requirement in specs.items():
+        instance_type_for_role = requirement["instance_type"]
+        n_instances_needed = requirement["n_required"]
+        instances_to_assign, rest = instance_type_to_instance_map[instance_type_for_role][:n_instances_needed], instance_type_to_instance_map[instance_type_for_role][n_instances_needed:]
+        instance_type_to_instance_map[instance_type_for_role] = rest
+        machine_assignments[role] = instances_to_assign
+
+    # Construct the host strings necessary for running the inception command.
+    # Note we use private ip addresses to avoid EC2 transfer costs.
+    worker_host_string = ",".join([x.private_ip_address+":"+str(port) for x in machine_assignments["master"] + machine_assignments["worker"]])
+    ps_host_string = ",".join([x.private_ip_address+":"+str(port) for x in machine_assignments["ps"]])
+
+    # Create a map of command&machine assignments
+    command_machine_assignments = {}
+
+    # Construct the inception command
+    run_inception_command = "./bazel-bin/inception/imagenet_distributed_train  --batch_size=%s --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > out_%s 2>&1 &"
+    command_machine_assignments["master"] = {"instance" : machine_assignments["master"][0], "command" : run_inception_command % (batch_size, worker_host_string, ps_host_string, 0, "worker", "master")}
+    for worker_id, instance in enumerate(machine_assignments["worker"]):
+        name = "worker_%d" % worker_id
+        command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % (batch_size, worker_host_string, ps_host_string, worker_id+1, "worker", name)}
+    for ps_id, instance in enumerate(machine_assignments["ps"]):
+        name = "ps_%d" % ps_id
+        command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % (batch_size, worker_host_string, ps_host_string, ps_id, "ps", name)}
+
+    # Other useful commands such as pulling from the github directory, etc
+    base_commands = ["cd models",
+                     "cd inception",
+                     "git fetch && git reset --hard origin/master",
+                     "rm -rf /tmp/imagenet_train",
+                     "rm -rf timeline*",
+                     "rm -rf out*",
+                     "mkdir timelines"]
+
+    # Run the commands via ssh in parallel
+    threads = []
+    q = Queue.Queue()
+    for name, command_and_machine in command_machine_assignments.items():
+        instance = command_and_machine["instance"]
+        commands = base_commands + [command_and_machine["command"]]
+        print("-----------------------")
+        print("%s - %s" % (name, instance.public_ip_address))
+        print("-----------------------")
+        print("Command: %s\n" % " ".join(commands))
+        t = threading.Thread(target=run_ssh_commands_parallel, args=(instance, commands, q))
+        t.start()
+        threads.append(t)
+
+    # Wait until commands are all finished
+    for t in threads:
+        t.join()
+
+    # Print the output
+    while not q.empty():
+        instance, output = q.get()
+        print(instance.public_ip_address)
+        print(output)
+
+def kill_all_inception():
+    live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+    threads = []
+    q = Queue.Queue()
+    for instance in live_instances:
+        commands = ["pkill python"]
+        t = threading.Thread(target=run_ssh_commands_parallel, args=(instance, commands, q))
+        t.start()
+        threads.append(t)
+    for thread in threads:
+        thread.join()
+    summarize_idle_instances()
+
+def clean_launch_and_run():
     # 1. Kills all instances in region
     # 2. Kills all requests in region
     # 3. Launches requests
     # 5. Waits until launch requests have all been satisfied,
     #    printing status outputs in the meanwhile
     # 4. Checks that configuration has been satisfied
-    # 5. ...
+    # 5. Runs inception
     shut_everything_down()
     launch_instances()
     wait_until_instance_request_status_fulfilled()
     wait_until_running_instances_initialized()
-    check_idle_instances_satisfy_configuration()
+    run_inception()
 
 def help(hmap):
     print("Usage: python inception_ec2.py [command]")
@@ -298,16 +403,20 @@ def help(hmap):
 
 if __name__ == "__main__":
     command_map = {
-        "clean_launch" : clean_launch,
-        "shut_down" : shut_everything_down,
+        "clean_launch_and_run" : clean_launch_and_run,
+        "shutdown" : shut_everything_down,
+        "run_inception" : run_inception,
+        "kill_all_inception" : kill_all_inception,
         "list_idle_instances" : summarize_idle_instances,
         "list_running_instances" : summarize_running_instances,
     }
     help_map = {
-        "clean_launch" : "Shut everything down, launch instances, wait until requests fulfilled, check that configuration is fulfilled, and launch and run inception.",
-        "shut_down" : "Shut everything down by cancelling all instance requests, and terminating all instances.",
+        "clean_launch_and_run" : "Shut everything down, launch instances, wait until requests fulfilled, check that configuration is fulfilled, and launch and run inception.",
+        "shutdown" : "Shut everything down by cancelling all instance requests, and terminating all instances.",
         "list_idle_instances" : "Lists all idle instances. Idle instances are running instances not running tensorflow.",
-        "list_running_instances" : "Lists all running instances."
+        "list_running_instances" : "Lists all running instances.",
+        "run_inception" : "Runs inception on idle instances.",
+        "kill_all_inception" : "Kills python running the inception training on ALL instances.",
     }
 
     if len(sys.argv) != 2:
