@@ -53,11 +53,11 @@ def summarize_instances(instances):
 
     return instance_type_to_instance_map
 
-def summarize_idle_instances():
+def summarize_idle_instances(argv):
     print("Idle instances: (Idle = not running tensorflow)")
     summarize_instances(get_idle_instances())
 
-def summarize_running_instances():
+def summarize_running_instances(argv):
     print("Running instances: ")
     summarize_instances(ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}]))
 
@@ -277,12 +277,12 @@ def check_idle_instances_satisfy_configuration():
             sys.exit(0)
     print("Success, running instances satisfy configuration requirement")
 
-def shut_everything_down():
+def shut_everything_down(argv):
     terminate_all_requests()
     terminate_all_instances()
 
 # Main method to run inception on a set of idle instances.
-def run_inception(batch_size=150, port=1234):
+def run_inception(argv, batch_size=150, port=1234):
 
     assert(configuration["n_masters"] == 1)
 
@@ -351,8 +351,6 @@ def run_inception(batch_size=150, port=1234):
         instance = command_and_machine["instance"]
         commands = base_commands + [command_and_machine["command"]]
         print("-----------------------")
-        print("%s - %s" % (name, instance.public_ip_address))
-        print("-----------------------")
         print("Command: %s\n" % " ".join(commands))
         t = threading.Thread(target=run_ssh_commands_parallel, args=(instance, commands, q))
         t.start()
@@ -368,7 +366,47 @@ def run_inception(batch_size=150, port=1234):
         print(instance.public_ip_address)
         print(output)
 
-def kill_all_inception():
+    # Debug print
+    instances = []
+    print("\n--------------------------------------------------\n")
+    print("Machine assignments:")
+    print("------------------------")
+    for name, command_and_machine in command_machine_assignments.items():
+        instance = command_and_machine["instance"]
+        instances.append(instance)
+        commands = base_commands + [command_and_machine["command"]]
+        ssh_command = "ssh -i %s %s@%s" % (configuration["path_to_keyfile"], configuration["ssh_username"], instance.public_ip_address)
+        print("%s - %s" % (name, instance.instance_id))
+        print("To ssh: %s" % ssh_command)
+        print("------------------------")
+
+    # Print out list of instance ids (which will be useful in selctively stopping inception
+    # for given instances.
+    instance_cluster_string = ",".join([x.instance_id for x in instances])
+    print("\nInstances cluster string: %s" % instance_cluster_string)
+
+def kill_inception(argv):
+    if len(argv) != 3:
+        print("To kill inception selectively, need a string containing instance ids separated by ','. E.G: i-012,i013,i014...")
+        sys.exit(0)
+    cluster_instance_string = argv[2]
+    instance_ids_to_shutdown = cluster_instance_string.split(",")
+
+    live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+    threads = []
+    q = Queue.Queue()
+    for instance in live_instances:
+        if instance.instance_id in instance_ids_to_shutdown:
+            commands = ["pkill python"]
+            t = threading.Thread(target=run_ssh_commands_parallel, args=(instance, commands, q))
+            t.start()
+            threads.append(t)
+    for thread in threads:
+        thread.join()
+    summarize_idle_instances(None)
+
+
+def kill_all_inception(argv):
     live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
     threads = []
     q = Queue.Queue()
@@ -379,9 +417,9 @@ def kill_all_inception():
         threads.append(t)
     for thread in threads:
         thread.join()
-    summarize_idle_instances()
+    summarize_idle_instances(None)
 
-def clean_launch_and_run():
+def clean_launch_and_run(argv):
     # 1. Kills all instances in region
     # 2. Kills all requests in region
     # 3. Launches requests
@@ -409,6 +447,7 @@ if __name__ == "__main__":
         "kill_all_inception" : kill_all_inception,
         "list_idle_instances" : summarize_idle_instances,
         "list_running_instances" : summarize_running_instances,
+        "kill_inception" : kill_inception,
     }
     help_map = {
         "clean_launch_and_run" : "Shut everything down, launch instances, wait until requests fulfilled, check that configuration is fulfilled, and launch and run inception.",
@@ -417,11 +456,12 @@ if __name__ == "__main__":
         "list_running_instances" : "Lists all running instances.",
         "run_inception" : "Runs inception on idle instances.",
         "kill_all_inception" : "Kills python running the inception training on ALL instances.",
+        "kill_inception" : "Kills python running inception on instances indicated by instance id string separated by ',' (no spaces)."
     }
 
-    if len(sys.argv) != 2:
+    if len(sys.argv) < 2:
         help(help_map)
         sys.exit(0)
 
     command = sys.argv[1]
-    command_map[command]()
+    command_map[command](sys.argv)
