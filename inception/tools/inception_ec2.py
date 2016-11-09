@@ -36,7 +36,7 @@ configuration = {
     # NFS configuration
     # To set up these values, go to Services > ElasticFileSystem > Create new filesystem, and follow the directions.
     "nfs_ip_address" : "172.31.3.173",        # This is particular to the availability zone specified above.
-    "nfs_mount_point" : "~/inception_shared", # Master writes checkpoints to this directory. Outfiles are written to this directory.
+    "nfs_mount_point" : "/home/ubuntu/inception_shared", # Master writes checkpoints to this directory. Outfiles are written to this directory.
 }
 
 client = boto3.client("ec2", region_name=configuration["region"])
