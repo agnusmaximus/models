@@ -454,7 +454,7 @@ def clean_launch_and_run(argv):
     launch_instances()
     wait_until_instance_request_status_fulfilled()
     wait_until_running_instances_initialized()
-    run_inception()
+    run_inception(None)
 
 def help(hmap):
     print("Usage: python inception_ec2.py [command]")
