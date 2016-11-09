@@ -300,6 +300,11 @@ def run_inception(argv, batch_size=150, port=1234):
     # Get idle instances
     idle_instances = get_idle_instances()
 
+    # Clear the nfs
+    instances_string = ",".join([x.instance_id for x in idle_instances])
+    clear_nfs_argv = ["python", "inception_ec2.py", instances_string, "rm -rf %s" % configuration["nfs_mount_point"]]
+    run_command(clear_nfs_argv, quiet=True)
+
     # Assign instances for worker/ps/etc
     instance_type_to_instance_map = summarize_instances(idle_instances)
     specs = {
@@ -351,7 +356,7 @@ def run_inception(argv, batch_size=150, port=1234):
     assert(len(machine_assignments["evaluator"]) == 1)
     evaluator_build_command = "bazel build inception/imagenet_eval"
     evaluator_run_command = "{ bazel-bin/inception/imagenet_eval --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/imagenet_eval > %s/out_%s 2>&1 & }" % (configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], "evaluator")
-    evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/imagenet_eval/ & }" % configuration["nfs_mount_point"]
+    evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/imagenet_eval/ > %s/out_%s 2>&1 & }" % (configuration["nfs_mount_point"], configuration["nfs_mount_point"], "evaluator_tensorboard")
     evaluator_command = " && ".join([evaluator_build_command, evaluator_run_command, evaluator_board_command])
     command_machine_assignments["evaluator"] = {"instance" : machine_assignments["evaluator"][0],
                                                 "command" : evaluator_command}
