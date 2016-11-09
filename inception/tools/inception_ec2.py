@@ -302,7 +302,7 @@ def run_inception(argv, batch_size=150, port=1234):
 
     # Clear the nfs
     instances_string = ",".join([x.instance_id for x in idle_instances])
-    clear_nfs_argv = ["python", "inception_ec2.py", instances_string, "rm -rf %s" % configuration["nfs_mount_point"]]
+    clear_nfs_argv = ["python", "inception_ec2.py", instances_string, "rm -rf %s/*" % configuration["nfs_mount_point"]]
     run_command(clear_nfs_argv, quiet=True)
 
     # Assign instances for worker/ps/etc
