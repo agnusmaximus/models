@@ -1,0 +1,318 @@
+from __future__ import print_function
+import sys
+import threading
+import Queue
+import paramiko as pm
+import boto3
+import time
+
+configuration = {
+    "key_name": "DistributedSGD",
+
+    # Inception topology
+    "n_masters" : 1,                     # Should always be 1
+    "n_workers" : 5,
+    "n_ps" : 1,
+    "n_evaluators" : 1,                  # Continually validates the model on the validation data
+
+    # Region speficiation
+    "region" : "us-west-2",
+    "availability_zone" : "us-west-2c",
+
+    # Machine type - instance type configuration.
+    "master_type" : "m4.2xlarge",
+    "worker_type" : "m4.2xlarge",
+    "ps_type" : "m4.2xlarge",
+    "evaluator_type" : "m4.2xlarge",
+    "image_id" : "ami-7a24fe1a",         # For us-west-2
+
+    # Launch specifications
+    "spot_price" : ".2",                 # Has to be a string
+
+    # SSH configuration
+    "ssh_username" : "ubuntu",            # For sshing. E.G: ssh ssh_username@hostname
+    "path_to_keyfile" : "/Users/maxlam/Desktop/School/Fall2016/Research/DistributedSGD/DistributedSGD.pem",
+}
+
+client = boto3.client("ec2", region_name=configuration["region"])
+ec2 = boto3.resource("ec2", region_name=configuration["region"])
+
+def sleep_a_bit():
+    time.sleep(5)
+
+def summarize_instances(instances):
+    instance_type_to_instance_map = {}
+    for instance in instances:
+        typ = instance.instance_type
+        if typ not in instance_type_to_instance_map:
+            instance_type_to_instance_map[typ] = []
+        instance_type_to_instance_map[typ].append(instance)
+
+    for k,v in instance_type_to_instance_map.items():
+        print("%s - %d running" % (k, len(v)))
+
+def summarize_idle_instances():
+    print("Idle instances: (Idle = not running tensorflow)")
+    summarize_instances(get_idle_instances())
+
+def summarize_running_instances():
+    print("Running instances: ")
+    summarize_instances(ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}]))
+
+# Terminate all request.
+def terminate_all_requests(method="spot"):
+    if method == "spot":
+        spot_requests = client.describe_spot_instance_requests()
+        spot_request_ids = []
+        for spot_request in spot_requests["SpotInstanceRequests"]:
+            if spot_request["State"] != "cancelled":
+                spot_request_id = spot_request["SpotInstanceRequestId"]
+                spot_request_ids.append(spot_request_id)
+
+        if len(spot_request_ids) != 0:
+            print("Terminating spot requests: %s" % " ".join([str(x) for x in spot_request_ids]))
+            client.cancel_spot_instance_requests(SpotInstanceRequestIds=spot_request_ids)
+
+        # Wait until all are cancelled.
+        # TODO: Use waiter class
+        done = False
+        while not done:
+            print("Waiting for all spot requests to be terminated...")
+            done = True
+            spot_requests = client.describe_spot_instance_requests()
+            states = [x["State"] for x in spot_requests["SpotInstanceRequests"]]
+            for state in states:
+                if state != "cancelled":
+                    done = False
+            sleep_a_bit()
+    else:
+        print("Unsupported terminate method: %s" % method)
+
+# Terminate all instances in the configuration
+# Note: all_instances = ec2.instances.all() to get all intances
+def terminate_all_instances():
+    live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+    all_instance_ids = [x.id for x in live_instances]
+    if len(all_instance_ids) != 0:
+        print("Terminating instances: %s" % (" ".join([str(x) for x in all_instance_ids])))
+        client.terminate_instances(InstanceIds=all_instance_ids)
+
+        # Wait until all are terminated
+        # TODO: Use waiter class
+        done = False
+        while not done:
+            print("Waiting for all instances to be terminated...")
+            done = True
+            instances = ec2.instances.all()
+            for instance in instances:
+                if instance.state == "active":
+                    done = False
+            sleep_a_bit()
+
+# Launch instances as specified in the configuration.
+def launch_instances(method="spot"):
+    if method == "spot":
+        worker_instance_type, worker_count = configuration["worker_type"], configuration["n_workers"]
+        master_instance_type, master_count = configuration["master_type"], configuration["n_masters"]
+        ps_instance_type, ps_count = configuration["ps_type"], configuration["n_ps"]
+        evaluator_instance_type, evaluator_count = configuration["evaluator_type"], configuration["n_evaluators"]
+        specs = [(worker_instance_type, worker_count),
+                 (master_instance_type, master_count),
+                 (ps_instance_type, ps_count),
+                 (evaluator_instance_type, evaluator_count)]
+        for (instance_type, count) in specs:
+            launch_specs = {"KeyName" : configuration["key_name"],
+                            "ImageId" : configuration["image_id"],
+                            "InstanceType" : instance_type,
+                            "Placement" : {"AvailabilityZone":configuration["availability_zone"]},
+                            "SecurityGroups": ["default"]}
+            client.request_spot_instances(InstanceCount=count,
+                                          LaunchSpecification=launch_specs,
+                                          SpotPrice=configuration["spot_price"])
+    else:
+        print("Unsupported launch method: %s" % method)
+
+# TODO: use waiter class?
+def wait_until_running_instances_initialized():
+    done = False
+    while not done:
+        print("Waiting for instances to be initialized...")
+        done = True
+        live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+        ids = [x.id for x in live_instances]
+        resps = client.describe_instance_status(InstanceIds=ids)
+        for resp in resps["InstanceStatuses"]:
+            if resp["InstanceStatus"]["Status"] != "ok":
+                done = False
+        sleep_a_bit()
+
+# Waits until status requests are all fulfilled.
+# Prints out status of request in between time waits.
+# TODO: Use waiter class
+def wait_until_instance_request_status_fulfilled(method="spot"):
+    if method == "spot":
+        requests_fulfilled, at_least_one_open_or_active = False, False
+        while not requests_fulfilled or not at_least_one_open_or_active:
+            requests_fulfilled = True
+            statuses = client.describe_spot_instance_requests()
+            print("InstanceRequestId, InstanceType, SpotPrice, State - Status : StatusMessage")
+            print("-------------------------------------------")
+            for instance_request in statuses["SpotInstanceRequests"]:
+                sid = instance_request["SpotInstanceRequestId"]
+                machine_type = instance_request["LaunchSpecification"]["InstanceType"]
+                price = instance_request["SpotPrice"]
+                state = instance_request["State"]
+                status, status_string = instance_request["Status"]["Code"], instance_request["Status"]["Message"]
+                if state == "active" or state == "open":
+                    at_least_one_open_or_active = True
+                    print("%s, %s, %s, %s - %s : %s" % (sid, machine_type, price, state, status, status_string))
+                    if state != "active":
+                        requests_fulfilled = False
+            print("-------------------------------------------")
+            sleep_a_bit()
+    else:
+        print("Unsupported instance request method: %s" % method)
+
+# Takes a list of commands (E.G: ["ls", "cd models"]
+# and executes command on instance, returning the stdout.
+# Executes everything in one session, and returns all output from all the commands.
+def run_ssh_commands(instance, commands):
+    print("Instance %s, Running ssh commands: %s" % (instance.public_ip_address, " ".join(commands)))
+
+    # Always need to exit
+    commands.append("exit")
+
+    # Set up ssh client
+    client = pm.SSHClient()
+    host = instance.public_ip_address
+    client.set_missing_host_key_policy(pm.AutoAddPolicy())
+    client.connect(host, username=configuration["ssh_username"], key_filename=configuration["path_to_keyfile"])
+
+    # Clear the stdout from ssh'ing in
+    # For each command perform command and read stdout
+    commandstring = "\n".join(commands)
+    stdin, stdout, stderr = client.exec_command(commandstring)
+    output = stdout.read()
+
+    # Close down
+    stdout.close()
+    stdin.close()
+    client.close()
+
+    return output
+
+# Checks whether instance is idle. Assumed that instance is up and running.
+# An instance is idle if it is not running tensorflow...
+# Returns a tuple of (instance, is_instance_idle). We return a tuple for multithreading ease.
+def is_instance_idle(q, instance):
+    python_processes = run_ssh_commands(instance, ["ps aux | grep python"])
+    q.put((instance, not "tensorflow" in python_processes))
+
+# Idle instances are running instances that are not running the inception model.
+# We check whether an instance is running the inception model by ssh'ing into a running machine,
+# and checking whether python is running.
+# TODO: parallelize like crazy
+def get_idle_instances():
+    live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+    threads = []
+    q = Queue.Queue()
+
+    # Run commands in parallel, writing to the queue
+    for instance in live_instances:
+        t = threading.Thread(target=is_instance_idle, args=(q, instance))
+        t.daemon = True
+        t.start()
+        threads.append(t)
+
+    # Wait for threads to finish
+    for thread in threads:
+        thread.join()
+
+    # Collect idle instances
+    idle_instances = []
+    while not q.empty():
+        instance, is_idle = q.get()
+        if is_idle:
+            idle_instances.append(instance)
+
+    return idle_instances
+
+# Returns whether the idle instances satisfy the specs of the configuration.
+def check_idle_instances_satisfy_configuration():
+    # Create a map of instance types to instances of that type
+    idle_instances = get_idle_instances()
+    instance_type_to_instance_map = {}
+    for instance in idle_instances:
+        typ = instance.instance_type
+        if typ not in instance_type_to_instance_map:
+            instance_type_to_instance_map[typ] = []
+        instance_type_to_instance_map[typ].append(instance)
+
+    # Get the requirements given the specification of worker/master/etc machine types
+    worker_instance_type, worker_count = configuration["worker_type"], configuration["n_workers"]
+    master_instance_type, master_count = configuration["master_type"], configuration["n_masters"]
+    ps_instance_type, ps_count = configuration["ps_type"], configuration["n_ps"]
+    evaluator_instance_type, evaluator_count = configuration["evaluator_type"], configuration["n_evaluators"]
+    specs = [(worker_instance_type, worker_count),
+             (master_instance_type, master_count),
+             (ps_instance_type, ps_count),
+             (evaluator_instance_type, evaluator_count)]
+    reqs = {}
+    for (type_needed, count_needed) in specs:
+        if type_needed not in reqs:
+            reqs[type_needed] = 0
+        reqs[type_needed] += count_needed
+
+    # Check the requirements are satisfied.
+    print("Checking whether # of running instances satisfies the configuration...")
+    for k,v in instance_type_to_instance_map.items():
+        print("%s - %d running vs %d required" % (k,len(v),reqs[k]))
+        if len(v) < reqs[k]:
+            print("Error, running instances failed to satisfy configuration requirements")
+            sys.exit(0)
+    print("Success, running instances satisfy configuration requirement")
+
+def shut_everything_down():
+    terminate_all_requests()
+    terminate_all_instances()
+
+def clean_launch():
+    # 1. Kills all instances in region
+    # 2. Kills all requests in region
+    # 3. Launches requests
+    # 5. Waits until launch requests have all been satisfied,
+    #    printing status outputs in the meanwhile
+    # 4. Checks that configuration has been satisfied
+    # 5. ...
+    shut_everything_down()
+    launch_instances()
+    wait_until_instance_request_status_fulfilled()
+    wait_until_running_instances_initialized()
+    check_idle_instances_satisfy_configuration()
+
+def help(hmap):
+    print("Usage: python inception_ec2.py [command]")
+    print("Commands:")
+    for k,v in hmap.items():
+        print("%s - %s" % (k,v))
+
+if __name__ == "__main__":
+    command_map = {
+        "clean_launch" : clean_launch,
+        "shut_down" : shut_everything_down,
+        "list_idle_instances" : summarize_idle_instances,
+        "list_running_instances" : summarize_running_instances,
+    }
+    help_map = {
+        "clean_launch" : "Shut everything down, launch instances, wait until requests fulfilled, check that configuration is fulfilled, and launch and run inception.",
+        "shut_down" : "Shut everything down by cancelling all instance requests, and terminating all instances.",
+        "list_idle_instances" : "Lists all idle instances. Idle instances are running instances not running tensorflow.",
+        "list_running_instances" : "Lists all running instances."
+    }
+
+    if len(sys.argv) != 2:
+        help(help_map)
+        sys.exit(0)
+
+    command = sys.argv[1]
+    command_map[command]()
