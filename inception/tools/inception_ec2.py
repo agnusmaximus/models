@@ -346,11 +346,20 @@ def run_inception(argv, batch_size=150, port=1234):
         params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, ps_id, "ps", configuration["nfs_mount_point"], name)
         command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
 
+    # The evaluator requires a special command to continually evaluate accuracy on validation data.
+    # We also launch the tensorboard on it.
+    assert(len(machine_assignments["evaluator"]) == 1)
+    evaluator_build_command = "bazel build inception/imagenet_eval"
+    evaluator_run_command = "{ bazel-bin/inception/imagenet_eval --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/imagenet_eval > %s/out_%s 2>&1 & }" % (configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], "evaluator")
+    evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/imagenet_eval/ & }" % configuration["nfs_mount_point"]
+    evaluator_command = " && ".join([evaluator_build_command, evaluator_run_command, evaluator_board_command])
+    command_machine_assignments["evaluator"] = {"instance" : machine_assignments["evaluator"][0],
+                                                "command" : evaluator_command}
+
     # Other useful commands such as pulling from the github directory, etc
     base_commands = ["cd models",
                      "cd inception",
                      "git fetch && git reset --hard origin/master",
-                     "rm -rf /tmp/imagenet_train",
                      "rm -rf timeline*",
                      "rm -rf out*",
                      "mkdir timelines"]
@@ -408,7 +417,7 @@ def kill_inception(argv):
     q = Queue.Queue()
     for instance in live_instances:
         if instance.instance_id in instance_ids_to_shutdown:
-            commands = ["pkill python"]
+            commands = ["pkill -9 python"]
             t = threading.Thread(target=run_ssh_commands_parallel, args=(instance, commands, q))
             t.start()
             threads.append(t)
@@ -421,7 +430,7 @@ def kill_all_inception(argv):
     threads = []
     q = Queue.Queue()
     for instance in live_instances:
-        commands = ["pkill python"]
+        commands = ["pkill -9 python"]
         t = threading.Thread(target=run_ssh_commands_parallel, args=(instance, commands, q))
         t.start()
         threads.append(t)
