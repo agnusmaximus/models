@@ -7,7 +7,7 @@ import boto3
 import time
 
 configuration = {
-    "key_name": "DistributedSGD",
+    "key_name": "DistributedSGD",        # Necessary to ssh into created instances
 
     # Inception topology
     "n_masters" : 1,                     # Should always be 1
@@ -32,6 +32,11 @@ configuration = {
     # SSH configuration
     "ssh_username" : "ubuntu",           # For sshing. E.G: ssh ssh_username@hostname
     "path_to_keyfile" : "/Users/maxlam/Desktop/School/Fall2016/Research/DistributedSGD/DistributedSGD.pem",
+
+    # NFS configuration
+    # To set up these values, go to Services > ElasticFileSystem > Create new filesystem, and follow the directions.
+    "nfs_ip_address" : "172.31.3.173",        # This is particular to the availability zone specified above.
+    "nfs_mount_point" : "~/inception_shared", # Master writes checkpoints to this directory. Outfiles are written to this directory.
 }
 
 client = boto3.client("ec2", region_name=configuration["region"])
@@ -128,6 +133,7 @@ def launch_instances(method="spot"):
                             "InstanceType" : instance_type,
                             "Placement" : {"AvailabilityZone":configuration["availability_zone"]},
                             "SecurityGroups": ["default"]}
+            # TODO: EBS optimized? (Will incur extra hourly cost)
             client.request_spot_instances(InstanceCount=count,
                                           LaunchSpecification=launch_specs,
                                           SpotPrice=configuration["spot_price"])
@@ -146,6 +152,8 @@ def wait_until_running_instances_initialized():
         for resp in resps["InstanceStatuses"]:
             if resp["InstanceStatus"]["Status"] != "ok":
                 done = False
+        if len(ids) <= 0:
+            done = False
         sleep_a_bit()
 
 # Waits until status requests are all fulfilled.
@@ -326,14 +334,17 @@ def run_inception(argv, batch_size=150, port=1234):
     command_machine_assignments = {}
 
     # Construct the inception command
-    run_inception_command = "./bazel-bin/inception/imagenet_distributed_train  --batch_size=%s --train_dir=/tmp/imagenet_train --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > out_%s 2>&1 &"
-    command_machine_assignments["master"] = {"instance" : machine_assignments["master"][0], "command" : run_inception_command % (batch_size, worker_host_string, ps_host_string, 0, "worker", "master")}
+    run_inception_command = "./bazel-bin/inception/imagenet_distributed_train  --batch_size=%s --train_dir=%s/train_dir --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > %s/out_%s 2>&1 &"
+    params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, 0, "worker", configuration["nfs_mount_point"], "master")
+    command_machine_assignments["master"] = {"instance" : machine_assignments["master"][0], "command" : run_inception_command % params}
     for worker_id, instance in enumerate(machine_assignments["worker"]):
         name = "worker_%d" % worker_id
-        command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % (batch_size, worker_host_string, ps_host_string, worker_id+1, "worker", name)}
+        params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, worker_id+1, "worker", configuration["nfs_mount_point"], name)
+        command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
     for ps_id, instance in enumerate(machine_assignments["ps"]):
         name = "ps_%d" % ps_id
-        command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % (batch_size, worker_host_string, ps_host_string, ps_id, "ps", name)}
+        params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, ps_id, "ps", configuration["nfs_mount_point"], name)
+        command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
 
     # Other useful commands such as pulling from the github directory, etc
     base_commands = ["cd models",
@@ -418,7 +429,7 @@ def kill_all_inception(argv):
         thread.join()
     summarize_idle_instances(None)
 
-def run_command(argv):
+def run_command(argv, quiet=False):
     if len(argv) != 4:
         print("Usage: python inception_ec2.py run_command instance_id1,instance_id2,id3... command")
         sys.exit(0)
@@ -440,7 +451,33 @@ def run_command(argv):
 
     while not q.empty():
         instance, output = q.get()
-        print(instance, output)
+        if not quiet:
+            print(instance, output)
+
+# Setup nfs on all instances
+def setup_nfs():
+    print("Installing nfs on all running instances...")
+    live_instances = ec2.instances.filter(Filters=[{'Name': 'instance-state-name', 'Values': ['running']}])
+    live_instances_string = ",".join([x.instance_id for x in live_instances])
+    update_command = "sudo apt-get -y update"
+    install_nfs_command = "sudo apt-get -y install nfs-common"
+    create_mount_command = "mkdir %s" % configuration["nfs_mount_point"]
+    setup_nfs_command = "sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 %s:/ %s" % (configuration["nfs_ip_address"], configuration["nfs_mount_point"])
+    reduce_permissions_command = "sudo chmod 777 %s " % configuration["nfs_mount_point"]
+    command = update_command + " && " + install_nfs_command + " && " + create_mount_command + " && " + setup_nfs_command + " && " + reduce_permissions_command
+
+    # pretty hackish
+    argv = ["python", "inception_ec2.py", live_instances_string, command]
+    run_command(argv, quiet=True)
+
+# Launch instances as specified by the configuration.
+# We also want a shared filesystem to write model checkpoints.
+# For simplicity we will have the user specify the filesystem via the config.
+def launch(argv):
+    launch_instances()
+    wait_until_instance_request_status_fulfilled()
+    wait_until_running_instances_initialized()
+    setup_nfs()
 
 def clean_launch_and_run(argv):
     # 1. Kills all instances in region
@@ -451,9 +488,7 @@ def clean_launch_and_run(argv):
     # 4. Checks that configuration has been satisfied
     # 5. Runs inception
     shut_everything_down(None)
-    launch_instances()
-    wait_until_instance_request_status_fulfilled()
-    wait_until_running_instances_initialized()
+    launch(None)
     run_inception(None)
 
 def help(hmap):
@@ -464,6 +499,7 @@ def help(hmap):
 
 if __name__ == "__main__":
     command_map = {
+        "launch" : launch,
         "clean_launch_and_run" : clean_launch_and_run,
         "shutdown" : shut_everything_down,
         "run_inception" : run_inception,
@@ -474,6 +510,7 @@ if __name__ == "__main__":
         "run_command" : run_command,
     }
     help_map = {
+        "launch" : "Launch instances",
         "clean_launch_and_run" : "Shut everything down, launch instances, wait until requests fulfilled, check that configuration is fulfilled, and launch and run inception.",
         "shutdown" : "Shut everything down by cancelling all instance requests, and terminating all instances.",
         "list_idle_instances" : "Lists all idle instances. Idle instances are running instances not running tensorflow.",
