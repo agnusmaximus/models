@@ -40,7 +40,9 @@ configuration = {
     "nfs_mount_point" : "/home/ubuntu/inception_shared", # Master writes checkpoints to this directory. Outfiles are written to this directory.
 
     # Dataset one of ("flowers" or "imagenet", since those are the script names)
+    # Note that "imagenet" is not supported yet as the AMI does not have the imagenet dataset downloaded/preprocessed.
     "dataset" : "flowers",
+    "num_validation_examples" : 500,            # 500 validation examples for flowers dataset.
 }
 
 client = boto3.client("ec2", region_name=configuration["region"])
@@ -344,27 +346,26 @@ def run_inception(argv, batch_size=128, port=1234):
 
     # TODO: Make all the commands much easier to parse / modify (refactor it).
     # Construct the inception command
-    run_inception_command += "bazel build inception/%s_distributed_train && ( ./bazel-bin/inception/%s_distributed_train  --batch_size=%s --train_dir=%s/train_dir --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > %s/out_%s 2>&1 & )"
-    params = (configuration["dataset"], configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, 0, "worker", configuration["nfs_mount_point"], "master")
+    run_inception_command = "./bazel-bin/inception/%s_distributed_train  --batch_size=%s --train_dir=%s/train_dir --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > %s/out_%s 2>&1 &"
+    params = (configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, 0, "worker", configuration["nfs_mount_point"], "master")
     command_machine_assignments["master"] = {"instance" : machine_assignments["master"][0], "command" : run_inception_command % params}
     for worker_id, instance in enumerate(machine_assignments["worker"]):
         name = "worker_%d" % worker_id
-        params = (configuration["dataset"], configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, worker_id+1, "worker", configuration["nfs_mount_point"], name)
+        params = (configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, worker_id+1, "worker", configuration["nfs_mount_point"], name)
         command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
     for ps_id, instance in enumerate(machine_assignments["ps"]):
         name = "ps_%d" % ps_id
-        params = (configuration["dataset"], configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, ps_id, "ps", configuration["nfs_mount_point"], name)
+        params = (configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, ps_id, "ps", configuration["nfs_mount_point"], name)
         command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
 
     # The evaluator requires a special command to continually evaluate accuracy on validation data.
     # We also launch the tensorboard on it.
     assert(len(machine_assignments["evaluator"]) == 1)
-    evaluator_build_command = "bazel build inception/%s_eval" % (configuration["dataset"])
-    evaluator_run_command = "{ bazel-bin/inception/%s_eval --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/%s_eval > %s/out_%s 2>&1 & }"
-    evaluator_run_command = evaluator_run_command % (configuration["dataset"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator")
+    evaluator_run_command = "{ bazel-bin/inception/%s_eval --num_examples=%d --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/%s_eval > %s/out_%s 2>&1 & }"
+    evaluator_run_command = evaluator_run_command % (configuration["dataset"], configuration["num_validation_examples"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator")
     evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/%s_eval/ > %s/out_%s 2>&1 & }"
     evaluator_board_command = evaluator_board_command % (configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator_tensorboard")
-    evaluator_command = " && ".join([evaluator_build_command, evaluator_run_command, evaluator_board_command])
+    evaluator_command = " && ".join([evaluator_run_command, evaluator_board_command])
     command_machine_assignments["evaluator"] = {"instance" : machine_assignments["evaluator"][0],
                                                 "command" : evaluator_command}
 
@@ -372,6 +373,7 @@ def run_inception(argv, batch_size=128, port=1234):
     base_commands = ["cd models",
                      "cd inception",
                      "git fetch && git reset --hard origin/master",
+                     "bazel build //...",
                      "rm -rf timeline*",
                      "rm -rf out*",
                      "mkdir timelines"]
