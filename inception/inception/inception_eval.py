@@ -44,15 +44,11 @@ tf.app.flags.DEFINE_integer('eval_interval_secs', 60 * 5,
 tf.app.flags.DEFINE_boolean('run_once', False,
                             """Whether to run eval only once.""")
 
-# Flags governing the data used for the eval.
-tf.app.flags.DEFINE_integer('num_examples', 50000,
-                            """Number of examples to run. Note that the eval """
-                            """ImageNet dataset contains 50000 examples.""")
 tf.app.flags.DEFINE_string('subset', 'validation',
                            """Either 'validation' or 'train'.""")
 
 
-def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op):
+def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op, n_examples):
   """Runs Eval once.
 
   Args:
@@ -93,7 +89,7 @@ def _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op):
         threads.extend(qr.create_threads(sess, coord=coord, daemon=True,
                                          start=True))
 
-      num_iter = int(math.ceil(FLAGS.num_examples / FLAGS.batch_size))
+      num_iter = int(math.ceil(n_examples / FLAGS.batch_size))
       # Counts the number of correct predictions.
       count_top_1 = 0.0
       count_top_5 = 0.0
@@ -170,7 +166,7 @@ def evaluate(dataset):
                                             graph_def=graph_def)
 
     while True:
-      _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op)
+      _eval_once(saver, summary_writer, top_1_op, top_5_op, summary_op, dataset.num_examples_per_epoch())
       if FLAGS.run_once:
         break
       time.sleep(FLAGS.eval_interval_secs)

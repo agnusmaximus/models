@@ -42,7 +42,6 @@ configuration = {
     # Dataset one of ("flowers" or "imagenet", since those are the script names)
     # Note that "imagenet" is not supported yet as the AMI does not have the imagenet dataset downloaded/preprocessed.
     "dataset" : "flowers",
-    "num_validation_examples" : 500,            # 500 validation examples for flowers dataset.
 }
 
 client = boto3.client("ec2", region_name=configuration["region"])
@@ -361,8 +360,8 @@ def run_inception(argv, batch_size=128, port=1234):
     # The evaluator requires a special command to continually evaluate accuracy on validation data.
     # We also launch the tensorboard on it.
     assert(len(machine_assignments["evaluator"]) == 1)
-    evaluator_run_command = "{ bazel-bin/inception/%s_eval --num_examples=%d --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/%s_eval > %s/out_%s 2>&1 & }"
-    evaluator_run_command = evaluator_run_command % (configuration["dataset"], configuration["num_validation_examples"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator")
+    evaluator_run_command = "{ bazel-bin/inception/%s_eval --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/%s_eval > %s/out_%s 2>&1 & }"
+    evaluator_run_command = evaluator_run_command % (configuration["dataset"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator")
     evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/%s_eval/ > %s/out_%s 2>&1 & }"
     evaluator_board_command = evaluator_board_command % (configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator_tensorboard")
     evaluator_command = " && ".join([evaluator_run_command, evaluator_board_command])
