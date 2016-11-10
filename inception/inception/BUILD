@@ -114,6 +114,17 @@ py_binary(
 )
 
 py_binary(
+    name = "flowers_distributed_train",
+    srcs = [
+        "flowers_distributed_train.py",
+    ],
+    deps = [
+        ":flowers_data",
+        ":inception_distributed_train",
+    ],
+)
+
+py_binary(
     name = "flowers_train",
     srcs = [
         "flowers_train.py",

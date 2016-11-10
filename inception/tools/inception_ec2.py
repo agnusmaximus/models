@@ -17,7 +17,7 @@ configuration = {
 
     # Region speficiation
     "region" : "us-west-2",
-    "availability_zone" : "us-west-2c",
+    "availability_zone" : "us-west-2a",
 
     # Machine type - instance type configuration.
     "master_type" : "m4.2xlarge",
@@ -27,7 +27,7 @@ configuration = {
     "image_id" : "ami-7a24fe1a",         # For us-west-2
 
     # Launch specifications
-    "spot_price" : ".2",                 # Has to be a string
+    "spot_price" : ".3",                 # Has to be a string
 
     # SSH configuration
     "ssh_username" : "ubuntu",           # For sshing. E.G: ssh ssh_username@hostname
@@ -35,8 +35,12 @@ configuration = {
 
     # NFS configuration
     # To set up these values, go to Services > ElasticFileSystem > Create new filesystem, and follow the directions.
-    "nfs_ip_address" : "172.31.3.173",        # This is particular to the availability zone specified above.
+    #"nfs_ip_address" : "172.31.3.173",        # This is particular to the availability zone specified above. west-2c
+    "nfs_ip_address" : "172.31.35.0",          # us-west-2a
     "nfs_mount_point" : "/home/ubuntu/inception_shared", # Master writes checkpoints to this directory. Outfiles are written to this directory.
+
+    # Dataset one of ("flowers" or "imagenet", since those are the script names)
+    "dataset" : "flowers",
 }
 
 client = boto3.client("ec2", region_name=configuration["region"])
@@ -220,7 +224,7 @@ def run_ssh_commands_parallel(instance, commands, q):
 # Returns a tuple of (instance, is_instance_idle). We return a tuple for multithreading ease.
 def is_instance_idle(q, instance):
     python_processes = run_ssh_commands(instance, ["ps aux | grep python"])
-    q.put((instance, not "imagenet" in python_processes))
+    q.put((instance, not "imagenet" in python_processes and not "flowers" in python_processes))
 
 # Idle instances are running instances that are not running the inception model.
 # We check whether an instance is running the inception model by ssh'ing into a running machine,
@@ -290,7 +294,7 @@ def shut_everything_down(argv):
     terminate_all_instances()
 
 # Main method to run inception on a set of idle instances.
-def run_inception(argv, batch_size=150, port=1234):
+def run_inception(argv, batch_size=128, port=1234):
 
     assert(configuration["n_masters"] == 1)
 
@@ -338,25 +342,28 @@ def run_inception(argv, batch_size=150, port=1234):
     # Create a map of command&machine assignments
     command_machine_assignments = {}
 
+    # TODO: Make all the commands much easier to parse / modify (refactor it).
     # Construct the inception command
-    run_inception_command = "./bazel-bin/inception/imagenet_distributed_train  --batch_size=%s --train_dir=%s/train_dir --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > %s/out_%s 2>&1 &"
-    params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, 0, "worker", configuration["nfs_mount_point"], "master")
+    run_inception_command += "bazel build inception/%s_distributed_train && ( ./bazel-bin/inception/%s_distributed_train  --batch_size=%s --train_dir=%s/train_dir --data_dir=./data/ --worker_hosts='%s' --ps_hosts='%s' --task_id=%s --job_name='%s' > %s/out_%s 2>&1 & )"
+    params = (configuration["dataset"], configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, 0, "worker", configuration["nfs_mount_point"], "master")
     command_machine_assignments["master"] = {"instance" : machine_assignments["master"][0], "command" : run_inception_command % params}
     for worker_id, instance in enumerate(machine_assignments["worker"]):
         name = "worker_%d" % worker_id
-        params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, worker_id+1, "worker", configuration["nfs_mount_point"], name)
+        params = (configuration["dataset"], configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, worker_id+1, "worker", configuration["nfs_mount_point"], name)
         command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
     for ps_id, instance in enumerate(machine_assignments["ps"]):
         name = "ps_%d" % ps_id
-        params = (batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, ps_id, "ps", configuration["nfs_mount_point"], name)
+        params = (configuration["dataset"], configuration["dataset"], batch_size, configuration["nfs_mount_point"], worker_host_string, ps_host_string, ps_id, "ps", configuration["nfs_mount_point"], name)
         command_machine_assignments[name] = {"instance" : instance, "command" : run_inception_command % params}
 
     # The evaluator requires a special command to continually evaluate accuracy on validation data.
     # We also launch the tensorboard on it.
     assert(len(machine_assignments["evaluator"]) == 1)
-    evaluator_build_command = "bazel build inception/imagenet_eval"
-    evaluator_run_command = "{ bazel-bin/inception/imagenet_eval --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/imagenet_eval > %s/out_%s 2>&1 & }" % (configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], "evaluator")
-    evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/imagenet_eval/ > %s/out_%s 2>&1 & }" % (configuration["nfs_mount_point"], configuration["nfs_mount_point"], "evaluator_tensorboard")
+    evaluator_build_command = "bazel build inception/%s_eval" % (configuration["dataset"])
+    evaluator_run_command = "{ bazel-bin/inception/%s_eval --data_dir=./data/  --checkpoint_dir=%s/train_dir --eval_dir=%s/%s_eval > %s/out_%s 2>&1 & }"
+    evaluator_run_command = evaluator_run_command % (configuration["dataset"], configuration["nfs_mount_point"], configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator")
+    evaluator_board_command = "{ python /usr/local/lib/python2.7/dist-packages/tensorflow/tensorboard/tensorboard.py --logdir=%s/%s_eval/ > %s/out_%s 2>&1 & }"
+    evaluator_board_command = evaluator_board_command % (configuration["nfs_mount_point"], configuration["dataset"], configuration["nfs_mount_point"], "evaluator_tensorboard")
     evaluator_command = " && ".join([evaluator_build_command, evaluator_run_command, evaluator_board_command])
     command_machine_assignments["evaluator"] = {"instance" : machine_assignments["evaluator"][0],
                                                 "command" : evaluator_command}
