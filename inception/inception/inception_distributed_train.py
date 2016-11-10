@@ -82,7 +82,10 @@ tf.app.flags.DEFINE_integer('save_summaries_secs', 300,
 # more guidance and discussion.
 #
 # Learning rate decay factor selected from https://arxiv.org/abs/1604.00981
-tf.app.flags.DEFINE_float('initial_learning_rate', 0.045,
+#tf.app.flags.DEFINE_float('initial_learning_rate', 0.045,
+#                          'Initial learning rate.')
+# For flowers
+tf.app.flags.DEFINE_float('initial_learning_rate', 0.0045,
                           'Initial learning rate.')
 tf.app.flags.DEFINE_float('num_epochs_per_decay', 2.0,
                           'Epochs after which learning rate decays.')
